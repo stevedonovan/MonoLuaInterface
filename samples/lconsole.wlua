@@ -354,7 +354,7 @@ end
 local form = Form()
 form.Menu = menu
 form.Text = "LuaInterface GUI Prompt"
-form.Size = Size(420,420)
+form.Size = Size(500,500)
 form.Closing:Add(function()
     os.exit(0)
 end)
