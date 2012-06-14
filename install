@@ -1,0 +1,29 @@
+#!/usr/bin/env lua
+local name = 'luai'
+local install_dir = arg[1] or (os.getenv('HOME')..'/bin')
+
+local p = io.popen 'pwd'
+local cwd = p:read()
+p:close()
+
+local templ = [[
+#!/bin/sh
+LUAI=%s/bin
+export LD_LIBRARY_PATH=$LUAI
+export LUA_PATH=";;$LUAI/lua/?.lua"
+/usr/bin/mono $LUAI/luai.exe $*
+]]
+
+local target = install_dir..'/'..name
+local f = io.open(target,'w')
+local wrapper = templ:format(cwd)
+f:write(wrapper)
+f:close()
+os.execute('chmod +x '..target)
+
+print("wrapper")
+print(wrapper)
+print("written to",target)
+
+
+
