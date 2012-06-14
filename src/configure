@@ -1,0 +1,41 @@
+#!/usr/bin/env lua
+function shell(cmd)
+    local p = io.popen (cmd..' 2> /dev/null')
+    local res = p:read()
+    p:close()
+    return res
+end
+
+local csc, shared, lua_include
+
+if shell 'which mcs' then
+    csc = 'mcs'
+elseif shell 'which cli-csc' then
+    csc = 'cli-csc'
+end
+
+local plat = shell 'uname'
+if plat == 'Darwin' then
+    shared = '-dynamiclib -undefined dynamic_lookup'
+else
+    shared = '-shared'
+end
+
+lua_include = shell 'ls /usr/include/lua.h'
+if not lua_include then
+    lua_include = shell 'ls /usr/include/lua5.1/lua.h'
+end
+
+print 'writing configuration to config.inc'
+local f = io.open('config.inc','w')
+f:write('LUA_INCLUDE=',lua_include,'\n')
+f:write('CSC=',csc,'\n')
+f:write('SHARED=',shared,'\n')
+f:close()
+
+
+
+
+
+
+

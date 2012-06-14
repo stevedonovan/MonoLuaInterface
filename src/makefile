@@ -1,15 +1,4 @@
-# where your Lua lives (this is standard location for Debian/Ubuntu
-LUA_INCLUDE=/usr/include/lua5.1
-# need this for Windows
-# LUA_LIB = \path\to\lua51.dll
-
-# name of your C# compiler
-CSC=cli-csc
-# CSC=mcs
-# CSC=csc
-
-# modify for OS X
-SHARED=-shared
+include config.inc
 
 BINDIR=../bin
 ASSEMBLY=$(BINDIR)/LuaInterface.dll

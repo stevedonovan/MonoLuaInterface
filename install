@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 if arg[1] == '-h' then
-    print "/install (install-dir or '~/bin') (wrapper or 'luai')"
+    print "./install (install-dir or '~/bin') (wrapper or 'luai')"
     os.exit(1)
 end
 
@@ -8,13 +8,13 @@ local name = arg[2] or 'luai'
 local install_dir = arg[1] or (os.getenv('HOME')..'/bin')
 
 function shell(cmd)
-    local p = io.popen 'pwd'
+    local p = io.popen (cmd..' 2> /dev/null')
     local res = p:read()
     p:close()
     return res
 end
 
-if shell('ls '..install_dir):match 'cannot access' then
+if not shell('ls '..install_dir) then
     print "the target directory does not exist"
     os.exit(1)
 end
@@ -26,16 +26,16 @@ local templ = [[
 LUAI=%s/bin
 export LD_LIBRARY_PATH=$LUAI
 export LUA_PATH=";;$LUAI/lua/?.lua"
-/usr/bin/mono $LUAI/%s.exe $*
+/usr/bin/mono $LUAI/luai.exe $*
 ]]
 
 local target = install_dir..'/'..name
 local f,err= io.open(target,'w')
 if not f then
-    print ("cannot write to "..target.."; you may need to be sudo")
+    print ("cannot write "..target.."; you may need to be sudo")
     os.exit(1)
 end
-local wrapper = templ:format(cwd,name)
+local wrapper = templ:format(cwd)
 f:write(wrapper)
 f:close()
 os.execute('chmod +x '..target)
