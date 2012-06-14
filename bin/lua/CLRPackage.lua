@@ -56,11 +56,12 @@ function CLRPackage(assemblyName, packageName)
   return t
 end
 
-function import (assemblyName)
-	local packageName
-	local i = assemblyName:find('%.dll$')
-	if i then packageName = assemblyName:sub(1,i-1)
-	else packageName = assemblyName end
+function import (assemblyName, packageName)
+    if not packageName then
+		local i = assemblyName:find('%.dll$')
+		if i then packageName = assemblyName:sub(1,i-1)
+		else packageName = assemblyName end
+	end
     local t = CLRPackage(assemblyName,packageName)
 	table.insert(packages,t)
 	return t
