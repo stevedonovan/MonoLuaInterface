@@ -7,9 +7,13 @@ This is version 1.5.3, which was the last version to use C/Invoke to link dynami
 
 This port provides a working version of LuaInterface, buildable on Mono.
 
+On Debian/Ubuntu, you will need the `liblua5.1-dev` and `mono-devel` packages.
+
 To build, go into the src directory, and edit `makefile` so that it knows where your Lua headers are, and what the name of your C# compiler is. Then just do `make`.
 
 To install, go back to the root and run `./install` which is a Lua script.
+
+(You can also install globally with `sudo ./install /usr/local/bin`)
 
 It will generate a wrapper script called `luai` looking like this:
 
