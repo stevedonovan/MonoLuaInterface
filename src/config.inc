@@ -1,3 +1,3 @@
-LUA_INCLUDE=/usr/include/lua5.1/lua.h
+LUA_INCLUDE=/usr/include/lua5.1
 CSC=cli-csc
 SHARED=-shared

@@ -6,6 +6,7 @@ function shell(cmd)
     return res
 end
 
+local cc = 'gcc'
 local csc, shared, lua_include
 
 if shell 'which mcs' then
@@ -25,12 +26,14 @@ lua_include = shell 'ls /usr/include/lua.h'
 if not lua_include then
     lua_include = shell 'ls /usr/include/lua5.1/lua.h'
 end
+lua_include = lua_include:gsub('/lua%.h$','')
 
 print 'writing configuration to config.inc'
 local f = io.open('config.inc','w')
 f:write('LUA_INCLUDE=',lua_include,'\n')
 f:write('CSC=',csc,'\n')
 f:write('SHARED=',shared,'\n')
+f:write('CC=',cc,'\n')
 f:close()
 
 
