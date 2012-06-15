@@ -5,6 +5,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 #ifdef _WIN32
+#define LUA_DLLEXPORT __declspec(dllexport)
 #include "luastdcall-windows.h"
 #else
 #define LUA_DLLEXPORT
