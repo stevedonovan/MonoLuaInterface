@@ -1,4 +1,7 @@
-namespace LuaInterface 
+#if (!__solua__ && !__Windows__)
+  #define __liblua__
+#endif
+namespace LuaInterface
 {
 
 	using System;
@@ -11,7 +14,7 @@ namespace LuaInterface
 	/*
 	 * Lua types for the API, returned by lua_type function
 	 */
-	public enum LuaTypes 
+	public enum LuaTypes
 	{
 		LUA_TNONE=-1,
 		LUA_TNIL=0,
@@ -57,7 +60,7 @@ namespace LuaInterface
 	/*
 	 * Special stack indexes
 	 */
-	sealed class LuaIndexes 
+	sealed class LuaIndexes
 	{
 		public static int LUA_REGISTRYINDEX=-10000;
 		public static int LUA_ENVIRONINDEX=-10001;	// steffenj: added environindex
@@ -97,13 +100,13 @@ namespace LuaInterface
 	 *
 	 * Author: Fabio Mascarenhas
 	 * Version: 1.0
-	 * 
+	 *
 	 * // steffenj: noteable changes in the LuaDLL API:
-	 * - luaopen_* functions are gone 
+	 * - luaopen_* functions are gone
 	 *		(however Lua class constructor already calls luaL_openlibs now, so just remove these calls)
-	 * - deprecated functions: lua_open, lua_strlen, lua_dostring 
+	 * - deprecated functions: lua_open, lua_strlen, lua_dostring
 	 *		(they still work but may be removed with next Lua version)
-	 * 
+	 *
 	 * list of functions of the Lua 5.1.1 C API that are not in LuaDLL
 	 * i thought this may come in handy for the next Lua version upgrade and for anyone to see
 	 * what the differences are in the APIs (C API vs LuaDLL API)
@@ -158,25 +161,25 @@ namespace LuaInterface
 		lua_setlocal
 		lua_setupvalue
 	 */
-	public class LuaDLL 
+	public class LuaDLL
 	{
         // for debugging
         // const string BASEPATH = @"C:\development\software\dotnet\tools\PulseRecognizer\PulseRecognizer\bin\Debug\";
         // const string BASEPATH = @"C:\development\software\ThirdParty\lua\Built\";
         const string BASEPATH = "";
-        #if __MonoCS__
-        const string DLL = "liblua5.1.so";
+        #if __Windows__
+        const string DLLX = ".dll";
         #else
-        const string DLL = "lua51.dll";
+        const string DLLX = ".so";
         #endif
-		const string LUADLL = BASEPATH + DLL;		// steffenj: use Lua 5.1.1 dll
-		const string LUALIBDLL = BASEPATH + DLL;	// steffenj: use Lua 5.1.1 dll
-        #if _MonoCS__
-        const string STUBDLL = BASEPATH + "luanet.dll";
+        #if __liblua__
+        const string DLL = "liblua5.1";
         #else
-        //const string STUBDLL = "/home/azisa/lua/luainterface/src/stub/luastdcall.so";
-        const string STUBDLL = BASEPATH + "luanet.so";
+        const string DLL = "lua51";
         #endif
+		const string LUADLL = BASEPATH + DLL + DLLX;		// steffenj: use Lua 5.1.1 dll
+		const string LUALIBDLL = LUADLL;
+        const string STUBDLL = BASEPATH + "luanet" + DLLX;
 
 		// steffenj: BEGIN additional Lua API functions new in Lua 5.1
 		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
@@ -292,7 +295,7 @@ namespace LuaInterface
 			return LuaDLL.lua_pcall(luaState, 0, -1, 0);
 		}
 		// steffenj: END Lua 5.1.1 API change (lua_dofile now in LuaLib as luaL_dofile)
-		public static void lua_getglobal(IntPtr luaState, string name) 
+		public static void lua_getglobal(IntPtr luaState, string name)
 		{
 			LuaDLL.lua_pushstring(luaState,name);
 			LuaDLL.lua_gettable(luaState,LuaIndexes.LUA_GLOBALSINDEX);
@@ -343,7 +346,7 @@ namespace LuaInterface
 		}
 		[DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
 		public static extern bool lua_isnumber(IntPtr luaState, int index);
-		public static bool lua_isboolean(IntPtr luaState, int index) 
+		public static bool lua_isboolean(IntPtr luaState, int index)
 		{
 			return LuaDLL.lua_type(luaState,index)==LuaTypes.LUA_TBOOLEAN;
 		}
@@ -351,10 +354,10 @@ namespace LuaInterface
 		public static extern int luaL_ref(IntPtr luaState, int registryIndex);
 		public static int lua_ref(IntPtr luaState, int lockRef)
 		{
-			if(lockRef!=0) 
+			if(lockRef!=0)
 			{
 				return LuaDLL.luaL_ref(luaState,LuaIndexes.LUA_REGISTRYINDEX);
-			} 
+			}
 			else return 0;
 		}
 		[DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
@@ -371,7 +374,7 @@ namespace LuaInterface
 		}
 		[DllImport(LUALIBDLL,CallingConvention=CallingConvention.Cdecl)]
 		public static extern void luaL_unref(IntPtr luaState, int registryIndex, int reference);
-		public static void lua_unref(IntPtr luaState, int reference) 
+		public static void lua_unref(IntPtr luaState, int reference)
 		{
 			LuaDLL.luaL_unref(luaState,LuaIndexes.LUA_REGISTRYINDEX,reference);
 		}
