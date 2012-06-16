@@ -1,9 +1,9 @@
-include config.inc
+include config.win
 
-BINDIR=../bin
-ASSEMBLY=$(BINDIR)/LuaInterface.dll
-RUNNER=$(BINDIR)/luai.exe
-STUB=$(BINDIR)/luanet.so
+BINDIR=..\bin
+ASSEMBLY=$(BINDIR)\LuaInterface.dll
+RUNNER=$(BINDIR)\luai.exe
+STUB=$(BINDIR)\luanet.dll
 
 all: $(ASSEMBLY) $(STUB) $(RUNNER)
 
@@ -12,7 +12,7 @@ ASSEMBLY_SRC = AssemblyInfo.cs CheckType.cs \
   Metatables.cs MethodWrapper.cs ObjectTranslator.cs ProxyType.cs
 
 $(ASSEMBLY): $(ASSEMBLY_SRC)
-	$(CSC) -out:$(ASSEMBLY) -t:library $(ASSEMBLY_SRC)
+	$(CSC) /define:__Windows__ -out:$(ASSEMBLY) -t:library $(ASSEMBLY_SRC)
 
 $(RUNNER): LuaNetRunner.cs
 	$(CSC) -out:$(RUNNER) -r:$(ASSEMBLY) LuaNetRunner.cs
@@ -21,4 +21,4 @@ $(STUB): luastdcall.c
 	$(CC) $(SHARED) -o $(STUB) -I $(LUA_INCLUDE) luastdcall.c $(LUA_LIB)
 
 clean:
-	rm $(STUB) $(ASSEMBLY) $(RUNNER)
+	del $(STUB) $(ASSEMBLY) $(RUNNER)

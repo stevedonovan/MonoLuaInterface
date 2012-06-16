@@ -1,0 +1,12 @@
+# .NET build
+#LUA_INCLUDE=c:\users\steve\LuaJIT-2.0\src
+#LUA_LIB=c:\users\steve\LuaJIT-2.0\src\lua51.dll
+#CSC = csc /nologo
+#CC=gcc
+# Mono build (against 32-bit lua51.dll, note -m32
+LUA_INCLUDE=c:\users\steve\lua\lua-5.1.4\src
+LUA_LIB=c:\users\steve\lua\lua-5.1.4\src\lua51.dll
+CSC=mcs
+SHARED=-shared
+CC=gcc -m32
+
