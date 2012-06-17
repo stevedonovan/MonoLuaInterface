@@ -6,10 +6,11 @@ function shell(cmd)
     return res
 end
 
-local cc = 'gcc'
 local csc, shared, lua_include
 
-if shell 'which mcs' then
+if shell 'which gmcs' then
+    csc = 'gmcs'
+elseif shell 'which mcs' then
     csc = 'mcs'
 elseif shell 'which cli-csc' then
     csc = 'cli-csc'
@@ -26,14 +27,16 @@ lua_include = shell 'ls /usr/include/lua.h'
 if not lua_include then
     lua_include = shell 'ls /usr/include/lua5.1/lua.h'
 end
-lua_include = lua_include:gsub('/lua%.h$','')
+if not lua_include then
+   print 'please check Lua include directory in config.inc'
+   lua_include = os.getenv('HOME')..'/lua-5.1.4/src'
+end
 
 print 'writing configuration to config.inc'
 local f = io.open('config.inc','w')
 f:write('LUA_INCLUDE=',lua_include,'\n')
 f:write('CSC=',csc,'\n')
 f:write('SHARED=',shared,'\n')
-f:write('CC=',cc,'\n')
 f:close()
 
 
