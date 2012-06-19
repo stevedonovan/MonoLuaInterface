@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
@@ -9,7 +10,8 @@ using System.Security.Permissions;
 //
 [assembly: AssemblyTitle("LuaInterface")]
 [assembly: AssemblyDescription("Bridge between the Lua runtime and the CLR")]
-[assembly: AssemblyCopyright("Copyright 2003-2006 Fabio Mascarenhas, Kevin Hester")]
+[assembly: AssemblyCopyright("Copyright 2003-2008 Fabio Mascarenhas, Kevin Hester")]
+[assembly: CLSCompliant(false)]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -22,7 +24,7 @@ using System.Security.Permissions;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.5.3")]	
+[assembly: AssemblyVersion("2.0.4.*")]	
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 

@@ -1,7 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Collections;
 using System.Threading;
 
 namespace LuaInterface
@@ -83,19 +84,24 @@ namespace LuaInterface
 	class CodeGeneration
 	{
 		private Type eventHandlerParent=typeof(LuaEventHandler);
-		private Hashtable eventHandlerCollection=new Hashtable();
+		private Dictionary<Type, Type> eventHandlerCollection=new Dictionary<Type, Type>();
 
 		private Type delegateParent=typeof(LuaDelegate);
-		private Hashtable delegateCollection=new Hashtable();
+		private Dictionary<Type, Type> delegateCollection=new Dictionary<Type, Type>();
 
 		private Type classHelper=typeof(LuaClassHelper);
-		private Hashtable classCollection=new Hashtable();
+		private Dictionary<Type, LuaClassType> classCollection=new Dictionary<Type, LuaClassType>();
 
 		private AssemblyName assemblyName;
 		private AssemblyBuilder newAssembly;
 		private ModuleBuilder newModule;
 		private int luaClassNumber=1;
+		private static readonly  CodeGeneration instance = new CodeGeneration();
 
+		static CodeGeneration()
+		{
+		}
+		
 		private CodeGeneration() 
 		{
 			// Create an assembly name
@@ -107,6 +113,17 @@ namespace LuaInterface
 			newModule=newAssembly.DefineDynamicModule("LuaInterface_generatedcode");
 		}
 
+		/*
+		 * Singleton instance of the class
+		 */
+		public static CodeGeneration Instance 
+		{
+			get 
+			{
+				return instance;
+			}
+		}
+		
 		/*
 		 *  Generates an event handler that calls a Lua function
 		 */
@@ -190,7 +207,7 @@ namespace LuaInterface
 			generator.DeclareLocal(typeof(object[])); // original arguments
 			generator.DeclareLocal(typeof(object[])); // with out-only arguments removed
 			generator.DeclareLocal(typeof(int[])); // indexes of out and ref arguments
-			if(!returnType.Equals(typeof(void)))  // return value
+			if(!(returnType == typeof(void)))  // return value
 				generator.DeclareLocal(returnType);
 			else
 				generator.DeclareLocal(typeof(object));
@@ -265,7 +282,7 @@ namespace LuaInterface
 			miGenericEventHandler=delegateParent.GetMethod("callFunction");
 			generator.Emit(OpCodes.Call,miGenericEventHandler);
 			// Stores return value
-			if(returnType.Equals(typeof(void))) 
+			if(returnType == typeof(void)) 
 			{
 				generator.Emit(OpCodes.Pop);
 				generator.Emit(OpCodes.Ldnull);
@@ -296,7 +313,7 @@ namespace LuaInterface
 				}
 			}
 			// Returns
-			if(!returnType.Equals(typeof(void)))
+			if(!(returnType == typeof(void)))
 				generator.Emit(OpCodes.Ldloc_3);
 			generator.Emit(OpCodes.Ret);
   
@@ -389,7 +406,7 @@ namespace LuaInterface
 		{
 			ParameterInfo[] paramInfo=method.GetParameters();
 			Type[] paramTypes=new Type[paramInfo.Length];
-			ArrayList returnTypesList=new ArrayList();
+			List<Type> returnTypesList=new List<Type>();
 
 			// Counts out and ref parameters, for later use,
 			// and creates the list of return types
@@ -408,7 +425,7 @@ namespace LuaInterface
 				}
 			}
 			int[] refArgs=new int[nOutAndRefParams];
-			returnTypes=(Type[])returnTypesList.ToArray(typeof(Type));
+			returnTypes=returnTypesList.ToArray();
 
 			// Generates a version of the method that calls the base implementation
 			// directly, for use by the base field of the table
@@ -422,7 +439,7 @@ namespace LuaInterface
 				for(int i=0;i<paramTypes.Length;i++)
 					generatorBase.Emit(OpCodes.Ldarg,i+1);
 				generatorBase.Emit(OpCodes.Call,method);
-				if(returnType.Equals(typeof(void)))
+				if(returnType == typeof(void))
 					generatorBase.Emit(OpCodes.Pop);
 				generatorBase.Emit(OpCodes.Ret);
 			}
@@ -440,7 +457,7 @@ namespace LuaInterface
 			generator.DeclareLocal(typeof(object[])); // original arguments
 			generator.DeclareLocal(typeof(object[])); // with out-only arguments removed
 			generator.DeclareLocal(typeof(int[])); // indexes of out and ref arguments
-			if(!returnType.Equals(typeof(void))) // return value
+			if(!(returnType == typeof(void))) // return value
 				generator.DeclareLocal(returnType);
 			else
 				generator.DeclareLocal(typeof(object));
@@ -529,7 +546,7 @@ namespace LuaInterface
 				for(int i=0;i<paramTypes.Length;i++)
 					generator.Emit(OpCodes.Ldarg,i+1);
 				generator.Emit(OpCodes.Call,method);
-				if(returnType.Equals(typeof(void))) 
+				if(returnType == typeof(void)) 
 					generator.Emit(OpCodes.Pop);
 				generator.Emit(OpCodes.Ret);
 				generator.Emit(OpCodes.Ldnull);
@@ -549,7 +566,7 @@ namespace LuaInterface
 			generator.Emit(OpCodes.Call,classHelper.GetMethod("callFunction"));
 			generator.MarkLabel(lab2);
 			// Stores the function return value
-			if(returnType.Equals(typeof(void))) 
+			if(returnType == typeof(void)) 
 			{
 				generator.Emit(OpCodes.Pop);
 				generator.Emit(OpCodes.Ldnull);
@@ -582,25 +599,9 @@ namespace LuaInterface
 			}
 
 			// Returns
-			if(!returnType.Equals(typeof(void)))
+			if(!(returnType == typeof(void)))
 				generator.Emit(OpCodes.Ldloc_3);
 			generator.Emit(OpCodes.Ret);
-		}
-
-		/*
-		 * Singleton instance of the class
-		 */
-		static CodeGeneration instance;
-		public static CodeGeneration Instance 
-		{
-			get 
-			{
-				if (instance==null) 
-				{
-					instance=new CodeGeneration();
-				}
-				return instance;
-			}
 		}
 
 		/*
@@ -610,9 +611,9 @@ namespace LuaInterface
 		public LuaEventHandler GetEvent(Type eventHandlerType, LuaFunction eventHandler)
 		{
 			Type eventConsumerType;
-			if (eventHandlerCollection.Contains(eventHandlerType)) 
+			if (eventHandlerCollection.ContainsKey(eventHandlerType)) 
 			{
-				eventConsumerType=(Type)eventHandlerCollection[eventHandlerType];
+				eventConsumerType=eventHandlerCollection[eventHandlerType];
 			} 
 			else 
 			{
@@ -630,11 +631,11 @@ namespace LuaInterface
 		 */
 		public Delegate GetDelegate(Type delegateType, LuaFunction luaFunc)
 		{
-			ArrayList returnTypes=new ArrayList();
+			List<Type> returnTypes=new List<Type>();
 			Type luaDelegateType;
-			if (delegateCollection.Contains(delegateType)) 
+			if (delegateCollection.ContainsKey(delegateType)) 
 			{
-				luaDelegateType=(Type)delegateCollection[delegateType];
+				luaDelegateType=delegateCollection[delegateType];
 			} 
 			else 
 			{
@@ -648,7 +649,7 @@ namespace LuaInterface
 					returnTypes.Add(paramInfo.ParameterType);
 			LuaDelegate luaDelegate=(LuaDelegate)Activator.CreateInstance(luaDelegateType);
 			luaDelegate.function=luaFunc;
-			luaDelegate.returnTypes=(Type[])returnTypes.ToArray(typeof(Type));
+			luaDelegate.returnTypes=returnTypes.ToArray();
 			return Delegate.CreateDelegate(delegateType,luaDelegate,"CallFunction");
 		}
 
@@ -661,9 +662,9 @@ namespace LuaInterface
 		public object GetClassInstance(Type klass, LuaTable luaTable)
 		{
 			LuaClassType luaClassType;
-			if (classCollection.Contains(klass)) 
+			if (classCollection.ContainsKey(klass)) 
 			{
-				luaClassType=(LuaClassType)classCollection[klass];
+				luaClassType=classCollection[klass];
 			} 
 			else 
 			{

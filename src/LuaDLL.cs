@@ -464,5 +464,7 @@ namespace LuaInterface
 		public static extern void lua_pushlightuserdata(IntPtr luaState, IntPtr udata);
  		[DllImport(STUBDLL,CallingConvention=CallingConvention.Cdecl)]
 		public static extern IntPtr luanet_gettag();
+        [DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
+        public static extern void luaL_where (IntPtr luaState, int level);
 	}
 }

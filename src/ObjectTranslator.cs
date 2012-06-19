@@ -23,7 +23,7 @@ namespace LuaInterface
         public readonly Dictionary<object, int> objectsBackMap = new Dictionary<object, int>();
         internal Lua interpreter;
 		private MetaFunctions metaFunctions;
-		private ArrayList assemblies;
+		private List<Assembly> assemblies;
 		private LuaCSFunction registerTableFunction,unregisterTableFunction,getMethodSigFunction,
 			getConstructorSigFunction,importTypeFunction,loadAssemblyFunction;
 
@@ -34,7 +34,7 @@ namespace LuaInterface
 			this.interpreter=interpreter;
 			typeChecker=new CheckType(this);
 			metaFunctions=new MetaFunctions(this);
-			assemblies=new ArrayList();
+			assemblies=new List<Assembly>();
 
 			importTypeFunction=new LuaCSFunction(this.importType);
 			loadAssemblyFunction=new LuaCSFunction(this.loadAssembly);
@@ -63,7 +63,7 @@ namespace LuaInterface
 			LuaDLL.lua_pushstring(luaState,"v");
 			LuaDLL.lua_settable(luaState,-3);
 			LuaDLL.lua_setmetatable(luaState,-2);
-			LuaDLL.lua_settable(luaState,LuaIndexes.LUA_REGISTRYINDEX);
+			LuaDLL.lua_settable(luaState, (int) LuaIndexes.LUA_REGISTRYINDEX);
 		}
 		/*
 		 * Registers the indexing function of CLR objects
@@ -74,7 +74,7 @@ namespace LuaInterface
 			LuaDLL.lua_pushstring(luaState,"luaNet_indexfunction");
 			LuaDLL.luaL_dostring(luaState,MetaFunctions.luaIndexFunction);	// steffenj: lua_dostring renamed to luaL_dostring
 			//LuaDLL.lua_pushstdcallcfunction(luaState,indexFunction);
-			LuaDLL.lua_rawset(luaState,LuaIndexes.LUA_REGISTRYINDEX);
+            LuaDLL.lua_rawset(luaState, (int) LuaIndexes.LUA_REGISTRYINDEX);
 		}
 		/*
 		 * Creates the metatable for superclasses (the base
@@ -157,40 +157,76 @@ namespace LuaInterface
 		/*
 		 * Passes errors (argument e) to the Lua interpreter
 		 */
-		internal void throwError(IntPtr luaState,object e) 
-		{
-			push(luaState,e);
-			LuaDLL.lua_error(luaState);
-		}
+        internal void throwError(IntPtr luaState, object e)
+        {
+            // We use this to remove anything pushed by luaL_where
+            int oldTop = LuaDLL.lua_gettop(luaState);
+
+            // Stack frame #1 is our C# wrapper, so not very interesting to the user
+            // Stack frame #2 must be the lua code that called us, so that's what we want to use
+            LuaDLL.luaL_where(luaState, 1);
+            object[] curlev = popValues(luaState, oldTop);
+
+            // Determine the position in the script where the exception was triggered
+            string errLocation = "";
+            if (curlev.Length > 0)
+                errLocation = curlev[0].ToString();
+
+            string message = e as string;
+            if (message != null)
+            {
+                // Wrap Lua error (just a string) and store the error location
+                e = new LuaScriptException(message, errLocation);
+            }
+            else
+            {
+                Exception ex = e as Exception;
+                if (ex != null)
+                {
+                    // Wrap generic .NET exception as an InnerException and store the error location
+                    e = new LuaScriptException(ex, errLocation);
+                }
+            }
+
+            push(luaState, e);
+            LuaDLL.lua_error(luaState);
+        }
 		/*
 		 * Implementation of load_assembly. Throws an error
 		 * if the assembly is not found.
 		 */
 		private int loadAssembly(IntPtr luaState) 
-		{
-			string assemblyName=LuaDLL.lua_tostring(luaState,1);
-			try 
-			{
-				Assembly assembly=Assembly.LoadWithPartialName(assemblyName);
+		{            
+            try
+            {
+                string assemblyName=LuaDLL.lua_tostring(luaState,1);
+
+                Assembly assembly = null;
 
                 try
                 {
-                    // If we couldn't find it based on a name, see if we can use it as a filename and find it
-                    if (assembly == null)
-                        assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyName));
+                    assembly = Assembly.LoadWithPartialName(assemblyName);
                 }
-                catch (Exception)
+                catch (BadImageFormatException)
                 {
-                    // ignore - it might not even be a filename
+                    // The assemblyName was invalid.  It is most likely a path.
                 }
 
-				if(assembly!=null && assemblies.IndexOf(assembly)==-1)
-					assemblies.Add(assembly);
-			} 
+                if (assembly == null)
+                {
+                    assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyName));
+                }
+
+                if (assembly != null && !assemblies.Contains(assembly))
+                {
+                    assemblies.Add(assembly);
+                }
+            } 
 			catch(Exception e) 
 			{
 				throwError(luaState,e);
 			}
+
 			return 0;
 		}
         
@@ -326,8 +362,9 @@ namespace LuaInterface
 				signature[i]=FindType(LuaDLL.lua_tostring(luaState,i+3));
 			try 
 			{
+                //CP: Added ignore case
 				MethodInfo method=klass.GetMethod(methodName,BindingFlags.Public | BindingFlags.Static |
-                    BindingFlags.Instance | BindingFlags.FlattenHierarchy,null,signature,null);
+                    BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase, null, signature, null);
 				pushFunction(luaState,new LuaCSFunction((new LuaMethodWrapper(this,target,klass,method)).call));
 			} 
 			catch(Exception e) 
@@ -451,7 +488,7 @@ namespace LuaInterface
 					LuaDLL.lua_rawset(luaState,-3);
 					LuaDLL.lua_pushstring(luaState,"__index");
 					LuaDLL.lua_pushstring(luaState,"luaNet_indexfunction");
-					LuaDLL.lua_rawget(luaState,LuaIndexes.LUA_REGISTRYINDEX);
+					LuaDLL.lua_rawget(luaState, (int) LuaIndexes.LUA_REGISTRYINDEX);
 					LuaDLL.lua_rawset(luaState,-3);
 					LuaDLL.lua_pushstring(luaState,"__gc");
 					LuaDLL.lua_pushstdcallcfunction(luaState,metaFunctions.gcFunction);
@@ -688,7 +725,7 @@ namespace LuaInterface
 			{
 				int iTypes;
 				ArrayList returnValues=new ArrayList();
-				if(popTypes[0].Equals(typeof(void)))
+				if(popTypes[0] == typeof(void))
 					iTypes=1;
 				else
 					iTypes=0;
