@@ -8,7 +8,7 @@ STUB=$(BINDIR)/luanet.so
 all: $(ASSEMBLY) $(STUB) $(RUNNER)
 
 ASSEMBLY_SRC = AssemblyInfo.cs CheckType.cs \
-  GenerateEventAssembly.cs Lua.cs LuaDLL.cs LuaException.cs LuaNetRunner.cs \
+  GenerateEventAssembly.cs Lua.cs LuaDLL.cs LuaException.cs  \
   Metatables.cs MethodWrapper.cs ObjectTranslator.cs ProxyType.cs
 
 $(ASSEMBLY): $(ASSEMBLY_SRC)

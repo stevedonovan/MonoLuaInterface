@@ -48,7 +48,7 @@ function CLRPackage(assemblyName, packageName)
   local t = {}
   -- a sensible default...
   packageName = packageName or assemblyName
-  luanet.load_assembly(assemblyName)			-- Make sure our assembly is loaded
+  local ok = pcall(luanet.load_assembly,assemblyName)			-- Make sure our assembly is loaded
 
   -- FIXME - table.packageName could instead be a private index (see Lua 13.4.4)
   t.packageName = packageName
