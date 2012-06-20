@@ -7,10 +7,14 @@ namespace LuaInterface
     /// </summary>
     public class LuaScriptException : LuaException
     {
+        private bool isNet;
         /// <summary>
         /// Returns true if the exception has occured as the result of a .NET exception in user code
         /// </summary>
-        public bool IsNetException { get; private set; }
+        public bool IsNetException {
+            get { return isNet; }
+            set { isNet = value;  }
+        }
 
         private readonly string source;
 

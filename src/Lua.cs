@@ -1,6 +1,6 @@
 
-namespace LuaInterface 
-{    
+namespace LuaInterface
+{
 	using System;
 	using System.IO;
 	using System.Collections;
@@ -15,12 +15,11 @@ namespace LuaInterface
 	 *
 	 * Author: Fabio Mascarenhas
 	 * Version: 1.0
-	 * 
+	 *
 	 * // steffenj: important changes in Lua class:
-	 * - removed all Open*Lib() functions 
+	 * - removed all Open*Lib() functions
 	 * - all libs automatically open in the Lua class constructor (just assign nil to unwanted libs)
 	 * */
-	[CLSCompliant(true)]
     public class Lua : IDisposable
 	{
 
@@ -75,7 +74,7 @@ namespace LuaInterface
         /// </summary>
         object luaLock = new object();
 
-		public Lua() 
+		public Lua()
 		{
 			luaState = LuaDLL.luaL_newstate();	// steffenj: Lua 5.1.1 API change (lua_open is gone)
 			//LuaDLL.luaopen_base(luaState);	// steffenj: luaopen_* no longer used
@@ -106,20 +105,20 @@ namespace LuaInterface
         private bool _StatePassed;
 
     	/*
-    	 * CAUTION: LuaInterface.Lua instances can't share the same lua state! 
+    	 * CAUTION: LuaInterface.Lua instances can't share the same lua state!
     	 */
     	public Lua(Int64 luaState)
     	{
     		IntPtr lState = new IntPtr(luaState);
     		LuaDLL.lua_pushstring(lState, "LUAINTERFACE LOADED");
             LuaDLL.lua_gettable(lState, (int)LuaIndexes.LUA_REGISTRYINDEX);
-    		
-            if(LuaDLL.lua_toboolean(lState,-1)) 
+
+            if(LuaDLL.lua_toboolean(lState,-1))
             {
         		LuaDLL.lua_settop(lState,-2);
         		throw new LuaException("There is already a LuaInterface.Lua instance associated with this Lua state");
-    		} 
-            else 
+    		}
+            else
             {
         		LuaDLL.lua_settop(lState,-2);
         		LuaDLL.lua_pushstring(lState, "LUAINTERFACE LOADED");
@@ -136,12 +135,12 @@ namespace LuaInterface
                 LuaDLL.lua_replace(lState, (int)LuaIndexes.LUA_GLOBALSINDEX);
 				LuaDLL.luaL_dostring(lState, Lua.init_luanet);	// steffenj: lua_dostring renamed to luaL_dostring
     		}
-                
+
             _StatePassed = true;
     	}
 
         /// <summary>
-        /// Called for each lua_lock call 
+        /// Called for each lua_lock call
         /// </summary>
         /// <param name="luaState"></param>
         /// Not yet used
@@ -153,7 +152,7 @@ namespace LuaInterface
         }
 
         /// <summary>
-        /// Called for each lua_unlock call 
+        /// Called for each lua_unlock call
         /// </summary>
         /// <param name="luaState"></param>
         /// Not yet used
@@ -234,7 +233,7 @@ namespace LuaInterface
         public bool IsExecuting { get { return executing; } }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="chunk"></param>
         /// <param name="name"></param>
@@ -253,12 +252,12 @@ namespace LuaInterface
 
             LuaFunction result = translator.getFunction(luaState, -1);
             translator.popValues(luaState, oldTop);
-            
+
             return result;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -279,7 +278,7 @@ namespace LuaInterface
 		 * Excutes a Lua chunk and returns all the chunk's return
 		 * values in an array
 		 */
-		public object[] DoString(string chunk) 
+		public object[] DoString(string chunk)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
             if (LuaDLL.luaL_loadbuffer(luaState, chunk, chunk.Length,"chunk") == 0)
@@ -331,10 +330,10 @@ namespace LuaInterface
 		 * Excutes a Lua file and returns all the chunk's return
 		 * values in an array
 		 */
-		public object[] DoFile(string fileName) 
+		public object[] DoFile(string fileName)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
-			if(LuaDLL.luaL_loadfile(luaState,fileName)==0) 
+			if(LuaDLL.luaL_loadfile(luaState,fileName)==0)
 			{
 			    executing = true;
                 try
@@ -345,7 +344,7 @@ namespace LuaInterface
                         ThrowExceptionFromError(oldTop);
                 }
                 finally { executing = false; }
-			} 
+			}
 			else
                 ThrowExceptionFromError(oldTop);
 
@@ -359,14 +358,14 @@ namespace LuaInterface
 		 */
 		public object this[string fullPath]
 		{
-			get 
+			get
 			{
 				object returnValue=null;
 				int oldTop=LuaDLL.lua_gettop(luaState);
 				string[] path=fullPath.Split(new char[] { '.' });
 				LuaDLL.lua_getglobal(luaState,path[0]);
 				returnValue=translator.getObject(luaState,-1);
-				if(path.Length>1) 
+				if(path.Length>1)
 				{
 					string[] remainingPath=new string[path.Length-1];
 					Array.Copy(path,1,remainingPath,0,path.Length-1);
@@ -375,16 +374,16 @@ namespace LuaInterface
 				LuaDLL.lua_settop(luaState,oldTop);
 				return returnValue;
 			}
-			set 
+			set
 			{
 				int oldTop=LuaDLL.lua_gettop(luaState);
 				string[] path=fullPath.Split(new char[] { '.' });
-				if(path.Length==1) 
+				if(path.Length==1)
 				{
 					translator.push(luaState,value);
 					LuaDLL.lua_setglobal(luaState,fullPath);
-				} 
-				else 
+				}
+				else
 				{
 					LuaDLL.lua_getglobal(luaState,path[0]);
 					string[] remainingPath=new string[path.Length-1];
@@ -514,36 +513,36 @@ namespace LuaInterface
 		 * Navigates a table in the top of the stack, returning
 		 * the value of the specified field
 		 */
-		internal object getObject(string[] remainingPath) 
+		internal object getObject(string[] remainingPath)
 		{
 			object returnValue=null;
-			for(int i=0;i<remainingPath.Length;i++) 
+			for(int i=0;i<remainingPath.Length;i++)
 			{
 				LuaDLL.lua_pushstring(luaState,remainingPath[i]);
 				LuaDLL.lua_gettable(luaState,-2);
 				returnValue=translator.getObject(luaState,-1);
-				if(returnValue==null) break;	
+				if(returnValue==null) break;
 			}
-			return returnValue;    
+			return returnValue;
 		}
 		/*
 		 * Gets a numeric global variable
 		 */
-		public double GetNumber(string fullPath) 
+		public double GetNumber(string fullPath)
 		{
 			return (double)this[fullPath];
 		}
 		/*
 		 * Gets a string global variable
 		 */
-		public string GetString(string fullPath) 
+		public string GetString(string fullPath)
 		{
 			return (string)this[fullPath];
 		}
 		/*
 		 * Gets a table global variable
 		 */
-		public LuaTable GetTable(string fullPath) 
+		public LuaTable GetTable(string fullPath)
 		{
 			return (LuaTable)this[fullPath];
 		}
@@ -551,14 +550,14 @@ namespace LuaInterface
 		 * Gets a table global variable as an object implementing
 		 * the interfaceType interface
 		 */
-		public object GetTable(Type interfaceType, string fullPath) 
+		public object GetTable(Type interfaceType, string fullPath)
 		{
 			return CodeGeneration.Instance.GetClassInstance(interfaceType,GetTable(fullPath));
 		}
 		/*
 		 * Gets a function global variable
 		 */
-		public LuaFunction GetFunction(string fullPath) 
+		public LuaFunction GetFunction(string fullPath)
 		{
             object obj=this[fullPath];
 			return (obj is LuaCSFunction ? new LuaFunction((LuaCSFunction)obj,this) : (LuaFunction)obj);
@@ -567,7 +566,7 @@ namespace LuaInterface
 		 * Gets a function global variable as a delegate of
 		 * type delegateType
 		 */
-		public Delegate GetFunction(Type delegateType,string fullPath) 
+		public Delegate GetFunction(Type delegateType,string fullPath)
 		{
 			return CodeGeneration.Instance.GetDelegate(delegateType,GetFunction(fullPath));
 		}
@@ -575,7 +574,7 @@ namespace LuaInterface
 		 * Calls the object as a function with the provided arguments,
 		 * returning the function's returned values inside an array
 		 */
-		internal object[] callFunction(object function,object[] args) 
+		internal object[] callFunction(object function,object[] args)
 		{
             return callFunction(function, args, null);
 		}
@@ -586,17 +585,17 @@ namespace LuaInterface
 		 * casting returned values to the types in returnTypes before returning
 		 * them in an array
 		 */
-		internal object[] callFunction(object function,object[] args,Type[] returnTypes) 
+		internal object[] callFunction(object function,object[] args,Type[] returnTypes)
 		{
 			int nArgs=0;
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			if(!LuaDLL.lua_checkstack(luaState,args.Length+6))
                 throw new LuaException("Lua stack overflow");
 			translator.push(luaState,function);
-			if(args!=null) 
+			if(args!=null)
 			{
 				nArgs=args.Length;
-				for(int i=0;i<args.Length;i++) 
+				for(int i=0;i<args.Length;i++)
 				{
 					translator.push(luaState,args[i]);
 				}
@@ -618,9 +617,9 @@ namespace LuaInterface
 		/*
 		 * Navigates a table to set the value of one of its fields
 		 */
-		internal void setObject(string[] remainingPath, object val) 
+		internal void setObject(string[] remainingPath, object val)
 		{
-			for(int i=0; i<remainingPath.Length-1;i++) 
+			for(int i=0; i<remainingPath.Length-1;i++)
 			{
 				LuaDLL.lua_pushstring(luaState,remainingPath[i]);
 				LuaDLL.lua_gettable(luaState,-2);
@@ -633,19 +632,19 @@ namespace LuaInterface
 		 * Creates a new table as a global variable or as a field
 		 * inside an existing table
 		 */
-		public void NewTable(string fullPath) 
+		public void NewTable(string fullPath)
 		{
 			string[] path=fullPath.Split(new char[] { '.' });
 			int oldTop=LuaDLL.lua_gettop(luaState);
-			if(path.Length==1) 
+			if(path.Length==1)
 			{
 				LuaDLL.lua_newtable(luaState);
 				LuaDLL.lua_setglobal(luaState,fullPath);
-			} 
-			else 
+			}
+			else
 			{
 				LuaDLL.lua_getglobal(luaState,path[0]);
-				for(int i=1; i<path.Length-1;i++) 
+				for(int i=1; i<path.Length-1;i++)
 				{
 					LuaDLL.lua_pushstring(luaState,path[i]);
 					LuaDLL.lua_gettable(luaState,-2);
@@ -664,7 +663,7 @@ namespace LuaInterface
 			int oldTop = LuaDLL.lua_gettop(luaState);
 			translator.push(luaState, table);
 			LuaDLL.lua_pushnil(luaState);
-			while (LuaDLL.lua_next(luaState, -2) != 0) 
+			while (LuaDLL.lua_next(luaState, -2) != 0)
 			{
 				dict[translator.getObject(luaState, -2)] = translator.getObject(luaState, -1);
 				LuaDLL.lua_settop(luaState, -2);
@@ -679,244 +678,7 @@ namespace LuaInterface
 		 * or userdata
 		 */
 
-   /*     
-      #region lua debug functions
-
-      /// <summary>
-      /// lua hook calback delegate
-      /// </summary>
-      /// <author>Reinhard Ostermeier</author>
-      private LuaHookFunction hookCallback = null;
-
-	    /// <summary>
-      /// Activates the debug hook
-      /// </summary>
-      /// <param name="mask">Mask</param>
-      /// <param name="count">Count</param>
-      /// <returns>see lua docs. -1 if hook is already set</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public int SetDebugHook(EventMasks mask, int count)
-      {
-         if (hookCallback == null)
-         {
-            hookCallback = new LuaHookFunction(DebugHookCallback);
-            return LuaDLL.lua_sethook(luaState, hookCallback, (int)mask, count);
-         }
-         return -1;
-      }
-
-      /// <summary>
-      /// Removes the debug hook
-      /// </summary>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public int RemoveDebugHook()
-      {
-         hookCallback = null;
-         return LuaDLL.lua_sethook(luaState, null, 0, 0);
-      }
-
-      /// <summary>
-      /// Gets the hook mask.
-      /// </summary>
-      /// <returns>hook mask</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public EventMasks GetHookMask()
-      {
-         return (EventMasks)LuaDLL.lua_gethookmask(luaState);
-      }
-
-      /// <summary>
-      /// Gets the hook count
-      /// </summary>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public int GetHookCount()
-      {
-         return LuaDLL.lua_gethookcount(luaState);
-      }
-
-      /// <summary>
-      /// Gets the stack entry on a given level
-      /// </summary>
-      /// <param name="level">level</param>
-      /// <param name="luaDebug">lua debug structure</param>
-      /// <returns>Returns true if level was allowed, false if level was invalid.</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public bool GetStack(int level, out LuaDebug luaDebug)
-      {
-         luaDebug = new LuaDebug();
-         IntPtr ld = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(luaDebug));
-         System.Runtime.InteropServices.Marshal.StructureToPtr(luaDebug, ld, false);
-         try
-         {
-            return LuaDLL.lua_getstack(luaState, level, ld) != 0;
-         }
-         finally
-         {
-            luaDebug = (LuaDebug)System.Runtime.InteropServices.Marshal.PtrToStructure(ld, typeof(LuaDebug));
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(ld);
-         }
-      }
-
-      /// <summary>
-      /// Gets info (see lua docs)
-      /// </summary>
-      /// <param name="what">what (see lua docs)</param>
-      /// <param name="luaDebug">lua debug structure</param>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public int GetInfo(String what, ref LuaDebug luaDebug)
-      {
-         IntPtr ld = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(luaDebug));
-         System.Runtime.InteropServices.Marshal.StructureToPtr(luaDebug, ld, false);
-         try
-         {
-            return LuaDLL.lua_getinfo(luaState, what, ld);
-         }
-         finally
-         {
-            luaDebug = (LuaDebug)System.Runtime.InteropServices.Marshal.PtrToStructure(ld, typeof(LuaDebug));
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(ld);
-         }
-      }
-
-      /// <summary>
-      /// Gets local (see lua docs)
-      /// </summary>
-      /// <param name="luaDebug">lua debug structure</param>
-      /// <param name="n">see lua docs</param>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public String GetLocal(LuaDebug luaDebug, int n)
-      {
-         IntPtr ld = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(luaDebug));
-         System.Runtime.InteropServices.Marshal.StructureToPtr(luaDebug, ld, false);
-         try
-         {
-            return LuaDLL.lua_getlocal(luaState, ld, n);
-         }
-         finally
-         {
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(ld);
-         }
-      }
-
-      /// <summary>
-      /// Sets local (see lua docs)
-      /// </summary>
-      /// <param name="luaDebug">lua debug structure</param>
-      /// <param name="n">see lua docs</param>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public String SetLocal(LuaDebug luaDebug, int n)
-      {
-         IntPtr ld = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(luaDebug));
-         System.Runtime.InteropServices.Marshal.StructureToPtr(luaDebug, ld, false);
-         try
-         {
-            return LuaDLL.lua_setlocal(luaState, ld, n);
-         }
-         finally
-         {
-            System.Runtime.InteropServices.Marshal.FreeHGlobal(ld);
-         }
-      }
-
-      /// <summary>
-      /// Gets up value (see lua docs)
-      /// </summary>
-      /// <param name="funcindex">see lua docs</param>
-      /// <param name="n">see lua docs</param>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public String GetUpValue(int funcindex, int n)
-      {
-         return LuaDLL.lua_getupvalue(luaState, funcindex, n);
-      }
-
-      /// <summary>
-      /// Sets up value (see lua docs)
-      /// </summary>
-      /// <param name="funcindex">see lua docs</param>
-      /// <param name="n">see lua docs</param>
-      /// <returns>see lua docs</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public String SetUpValue(int funcindex, int n)
-      {
-         return LuaDLL.lua_setupvalue(luaState, funcindex, n);
-      }
-
-      /// <summary>
-      /// Delegate that is called on lua hook callback
-      /// </summary>
-      /// <param name="luaState">lua state</param>
-      /// <param name="luaDebug">Pointer to LuaDebug (lua_debug) structure</param>
-      /// <author>Reinhard Ostermeier</author>
-      private void DebugHookCallback(IntPtr luaState, IntPtr luaDebug)
-      {
-         try
-         {
-            LuaDebug ld = (LuaDebug)System.Runtime.InteropServices.Marshal.PtrToStructure(luaDebug, typeof(LuaDebug));
-            EventHandler<DebugHookEventArgs> temp = DebugHook;
-            if (temp != null)
-            {
-               temp(this, new DebugHookEventArgs(ld));
-            }
-         }
-         catch (Exception ex)
-         {
-            OnHookException(new HookExceptionEventArgs(ex));
-         }
-      }
-
-      /// <summary>
-      /// Event that is raised when an exception occures during a hook call.
-      /// </summary>
-      /// <author>Reinhard Ostermeier</author>
-      public event EventHandler<HookExceptionEventArgs> HookException;
-      private void OnHookException(HookExceptionEventArgs e)
-      {
-         EventHandler<HookExceptionEventArgs> temp = HookException;
-         if (temp != null)
-         {
-            temp(this, e);
-         }
-      }
-
-      /// <summary>
-      /// Event when lua hook callback is called
-      /// </summary>
-      /// <remarks>
-      /// Is only raised if SetDebugHook is called before.
-      /// </remarks>
-      /// <author>Reinhard Ostermeier</author>
-      public event EventHandler<DebugHookEventArgs> DebugHook;
-
-      /// <summary>
-      /// Pops a value from the lua stack.
-      /// </summary>
-      /// <returns>Returns the top value from the lua stack.</returns>
-      /// <author>Reinhard Ostermeier</author>
-      public object Pop()
-      {
-         int top = LuaDLL.lua_gettop(luaState);
-         return translator.popValues(luaState, top - 1)[0];
-      }
-
-      /// <summary>
-      /// Pushes a value onto the lua stack.
-      /// </summary>
-      /// <param name="value">Value to push.</param>
-      /// <author>Reinhard Ostermeier</author>
-      public void Push(object value)
-      {
-         translator.push(luaState, value);
-      }
-
-      #endregion
-*/
-		internal void dispose(int reference) 
+		internal void dispose(int reference)
 		{
             if (luaState != IntPtr.Zero) //Fix submitted by Qingrui Li
                 LuaDLL.lua_unref(luaState,reference);
@@ -925,7 +687,7 @@ namespace LuaInterface
 		 * Gets a field of the table corresponding to the provided reference
 		 * using rawget (do not use metatables)
 		 */
-		internal object rawGetObject(int reference,string field) 
+		internal object rawGetObject(int reference,string field)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,reference);
@@ -938,7 +700,7 @@ namespace LuaInterface
 		/*
 		 * Gets a field of the table or userdata corresponding to the provided reference
 		 */
-		internal object getObject(int reference,string field) 
+		internal object getObject(int reference,string field)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,reference);
@@ -949,7 +711,7 @@ namespace LuaInterface
 		/*
 		 * Gets a numeric field of the table or userdata corresponding the the provided reference
 		 */
-		internal object getObject(int reference,object field) 
+		internal object getObject(int reference,object field)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,reference);
@@ -963,7 +725,7 @@ namespace LuaInterface
 		 * Sets a field of the table or userdata corresponding the the provided reference
 		 * to the provided value
 		 */
-		internal void setObject(int reference, string field, object val) 
+		internal void setObject(int reference, string field, object val)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,reference);
@@ -974,7 +736,7 @@ namespace LuaInterface
 		 * Sets a numeric field of the table or userdata corresponding the the provided reference
 		 * to the provided value
 		 */
-		internal void setObject(int reference, object field, object val) 
+		internal void setObject(int reference, object field, object val)
 		{
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,reference);
@@ -992,7 +754,7 @@ namespace LuaInterface
 		{
             // We leave nothing on the stack when we are done
             int oldTop = LuaDLL.lua_gettop(luaState);
-            
+
 			LuaMethodWrapper wrapper=new LuaMethodWrapper(translator,target,function.DeclaringType,function);
 			translator.push(luaState,new LuaCSFunction(wrapper.call));
 
@@ -1008,7 +770,7 @@ namespace LuaInterface
 		/*
 		 * Compares the two values referenced by ref1 and ref2 for equality
 		 */
-		internal bool compareRef(int ref1, int ref2) 
+		internal bool compareRef(int ref1, int ref2)
 		{
 			int top=LuaDLL.lua_gettop(luaState);
 			LuaDLL.lua_getref(luaState,ref1);
@@ -1017,7 +779,7 @@ namespace LuaInterface
 			LuaDLL.lua_settop(luaState,top);
 			return (equal!=0);
 		}
-        
+
         internal void pushCSFunction(LuaCSFunction function)
         {
             translator.pushFunction(luaState,function);
@@ -1032,7 +794,7 @@ namespace LuaInterface
                 translator.pendingEvents.Dispose();
                 translator = null;
             }
-        
+
             this.Close();
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
@@ -1041,97 +803,6 @@ namespace LuaInterface
         #endregion
    }
 
-   /// <summary>
-   /// Event codes for lua hook function
-   /// </summary>
-   /// <remarks>
-   /// Do not change any of the values because they must match the lua values
-   /// </remarks>
-   /// <author>Reinhard Ostermeier</author>
-   public enum EventCodes
-   {
-      LUA_HOOKCALL = 0,
-      LUA_HOOKRET = 1,
-      LUA_HOOKLINE = 2,
-      LUA_HOOKCOUNT = 3,
-      LUA_HOOKTAILRET = 4,
-   }
 
-   /// <summary>
-   /// Event masks for lua hook callback
-   /// </summary>
-   /// <remarks>
-   /// Do not change any of the values because they must match the lua values
-   /// </remarks>
-   /// <author>Reinhard Ostermeier</author>
-   [Flags]
-   public enum EventMasks
-   {
-      LUA_MASKCALL = (1 << EventCodes.LUA_HOOKCALL),
-      LUA_MASKRET = (1 << EventCodes.LUA_HOOKRET),
-      LUA_MASKLINE = (1 << EventCodes.LUA_HOOKLINE),
-      LUA_MASKCOUNT = (1 << EventCodes.LUA_HOOKCOUNT),
-      LUA_MASKALL = Int32.MaxValue,
-   }
 
-   /// <summary>
-   /// Structure for lua debug information
-   /// </summary>
-   /// <remarks>
-   /// Do not change this struct because it must match the lua structure lua_debug
-   /// </remarks>
-   /// <author>Reinhard Ostermeier</author>
-   [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-   public struct LuaDebug
-   {
-      public EventCodes eventCode;
-      [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPStr)]
-      public String name;
-      [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPStr)]
-      public String namewhat;
-      [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPStr)]
-      public String what;
-      [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPStr)]
-      public String source;
-      public int currentline;
-      public int nups;
-      public int linedefined;
-      public int lastlinedefined;
-      [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 60/*LUA_IDSIZE*/)]
-      public String shortsrc;
-      public int i_ci;
-   }
-
-   /// <summary>
-   /// Event args for hook callback event
-   /// </summary>
-   /// <author>Reinhard Ostermeier</author>
-   public class DebugHookEventArgs : EventArgs
-   {
-      private readonly LuaDebug luaDebug;
-
-      public DebugHookEventArgs(LuaDebug luaDebug)
-      {
-         this.luaDebug = luaDebug;
-      }
-
-      public LuaDebug LuaDebug
-      {
-         get { return luaDebug; }
-      }
-   }
-
-   public class HookExceptionEventArgs : EventArgs
-   {
-      private readonly Exception m_Exception;
-      public Exception Exception
-      {
-         get { return m_Exception; }
-      }
-
-      public HookExceptionEventArgs(Exception ex)
-      {
-         m_Exception = ex;
-      }
-   }
 }

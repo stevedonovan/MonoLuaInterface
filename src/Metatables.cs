@@ -11,7 +11,7 @@ namespace LuaInterface
     /*
      * Functions used in the metatables of userdata representing
      * CLR objects
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */
@@ -146,9 +146,9 @@ namespace LuaInterface
             string methodName = index as string;        // will be null if not a string arg
             Type objType = obj.GetType();
 
-            // Handle the most common case, looking up the method by name. 
+            // Handle the most common case, looking up the method by name.
 
-            // CP: This will fail when using indexers and attempting to get a value with the same name as a property of the object, 
+            // CP: This will fail when using indexers and attempting to get a value with the same name as a property of the object,
             // ie: xmlelement['item'] <- item is a property of xmlelement
             try
             {
@@ -501,7 +501,7 @@ namespace LuaInterface
                         ParameterInfo[] args = setter.GetParameters();
                         Type valueType = args[1].ParameterType;
 
-                        // The new val ue the user specified 
+                        // The new val ue the user specified
                         object val = translator.getAsType(luaState, 3, valueType);
 
                         Type indexType = args[0].ParameterType;
@@ -545,7 +545,7 @@ namespace LuaInterface
         {
             detailMessage = null;   // No error yet
 
-            // If not already a string just return - we don't want to call tostring - which has the side effect of 
+            // If not already a string just return - we don't want to call tostring - which has the side effect of
             // changing the lua typecode to string
             // Note: We don't use isstring because the standard lua C isstring considers either strings or numbers to
             // be true for isstring.
@@ -923,7 +923,7 @@ namespace LuaInterface
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine(string.Format("An error occurred during an attempt to retrieve an extractor ({0}) while checking for params array status.", paramElementType.FullName));
+                        Debug.WriteLine(string.Format("An error occurred during an attempt to retrieve an extractor ({0}) while checking for params array status:{1}", paramElementType.FullName,ex.ToString()));
                     }
 
                     if (extractValue != null)

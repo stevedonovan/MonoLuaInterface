@@ -76,7 +76,7 @@ namespace LuaInterface
             if (!type.IsEnum) throw new ArgumentException("The type must be an enumeration!");
 
             string[] names = Enum.GetNames(type);
-            var values = (T[])Enum.GetValues(type);
+            T[] values = (T[])Enum.GetValues(type);
 
             lua.NewTable(type.Name);
             for (int i = 0; i < names.Length; i++)
