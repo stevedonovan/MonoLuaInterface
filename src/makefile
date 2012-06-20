@@ -1,12 +1,11 @@
 include config.inc
 
-BINDIR=/home/user/lua/MonoLuaInterface/bin
+BINDIR=../bin
 ASSEMBLY=$(BINDIR)/LuaInterface.dll
 RUNNER=$(BINDIR)/luai.exe
 STUB=$(BINDIR)/luanet.so
 
-all: $(ASSEMBLY)
- # $(STUB) $(RUNNER)
+all: $(ASSEMBLY) $(STUB) $(RUNNER)
 
 ASSEMBLY_SRC = \
 AssemblyInfo.cs LuaException.cs LuaTable.cs \

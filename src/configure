@@ -30,6 +30,8 @@ end
 if not lua_include then
    print 'please check Lua include directory in config.inc'
    lua_include = os.getenv('HOME')..'/lua-5.1.4/src'
+else
+    lua_include = lua_include:gsub ('/lua%.h$','')
 end
 
 print 'writing configuration to config.inc'
