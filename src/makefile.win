@@ -7,9 +7,13 @@ STUB=$(BINDIR)\luanet.dll
 
 all: $(ASSEMBLY) $(STUB) $(RUNNER)
 
-ASSEMBLY_SRC = AssemblyInfo.cs CheckType.cs \
-  GenerateEventAssembly.cs Lua.cs LuaDLL.cs LuaException.cs LuaNetRunner.cs \
-  Metatables.cs MethodWrapper.cs ObjectTranslator.cs ProxyType.cs
+ASSEMBLY_SRC = \
+AssemblyInfo.cs LuaException.cs LuaTable.cs \
+CheckType.cs  LuaFunction.cs  LuaUserData.cs \
+GenerateEventAssembly.cs  LuaGlobalAttribute.cs   Metatables.cs \
+LuaBase.cs   LuaHideAttribute.cs  MethodWrapper.cs \
+Lua.cs  LuaRegistrationHelper.cs  ObjectTranslator.cs \
+LuaDLL.cs  LuaScriptException.cs  ProxyType.cs
 
 $(ASSEMBLY): $(ASSEMBLY_SRC)
 	$(CSC) /define:__Windows__ -out:$(ASSEMBLY) -t:library $(ASSEMBLY_SRC)
