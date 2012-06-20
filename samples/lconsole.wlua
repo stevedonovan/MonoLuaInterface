@@ -402,7 +402,6 @@ write 'ILUA: Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio\r\n'
 write '> '
 
 if arg[1] and File.Exists(arg[1]) then
-    print (arg[1])
     load_lua_file(arg[1])
 end
 form:ShowDialog()

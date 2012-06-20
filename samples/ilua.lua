@@ -163,7 +163,7 @@ function val2str(val)
 end
 
 function _pretty_print(...)
-    for i,val in ipairs(arg) do
+    for i,val in ipairs{...} do
         oprint(val2str(val))
     end
     _G['_'] = arg[1]
