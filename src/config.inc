@@ -1,4 +1,3 @@
 LUA_INCLUDE=/usr/include/lua5.1
-CSC=cli-csc
+CSC=gmcs
 SHARED=-shared
-CC=gcc
