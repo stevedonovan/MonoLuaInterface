@@ -180,6 +180,11 @@ namespace LuaInterface
                 else
                 {
                     object[] arr = (object[])obj;
+                    if (intIndex >= arr.Length) {
+                        translator.throwError(luaState,"array index out of bounds: "+intIndex + " " + arr.Length);
+                         LuaDLL.lua_pushnil(luaState);
+                        return 1;
+                    }
                     translator.push(luaState, arr[intIndex]);
                 }
             }

@@ -41,7 +41,7 @@ namespace LuaInterface
 			"    -- an identifier component.							\n"+
 			"    if obj == nil then									\n"+
 			"		-- It might be an assembly, so we load it too.				\n"+
-			"        load_assembly(fqn)								\n"+
+			"        pcall(load_assembly,fqn)		\n"+
 			"        obj = { [\".fqn\"] = fqn }							\n"+
 			"        setmetatable(obj, metatable)							\n"+
 			"    end										\n"+

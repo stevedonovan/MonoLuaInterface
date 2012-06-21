@@ -25,7 +25,7 @@ namespace LuaInterface
 		private MetaFunctions metaFunctions;
 		private List<Assembly> assemblies;
 		private LuaCSFunction registerTableFunction,unregisterTableFunction,getMethodSigFunction,
-			getConstructorSigFunction,importTypeFunction,loadAssemblyFunction;
+			getConstructorSigFunction,importTypeFunction,loadAssemblyFunction, ctypeFunction, enumFromIntFunction;
 
         internal EventHandlerContainer pendingEvents = new EventHandlerContainer();
 
@@ -42,6 +42,9 @@ namespace LuaInterface
 			unregisterTableFunction=new LuaCSFunction(this.unregisterTable);
 			getMethodSigFunction=new LuaCSFunction(this.getMethodSignature);
 			getConstructorSigFunction=new LuaCSFunction(this.getConstructorSignature);
+            
+            ctypeFunction = new LuaCSFunction(this.ctype);
+            enumFromIntFunction = new LuaCSFunction(this.enumFromInt);
 
 			createLuaObjectList(luaState);
 			createIndexingMetaFunction(luaState);
@@ -139,7 +142,13 @@ namespace LuaInterface
 			LuaDLL.lua_setglobal(luaState,"get_method_bysig");
 			LuaDLL.lua_pushstdcallcfunction(luaState,getConstructorSigFunction);
 			LuaDLL.lua_setglobal(luaState,"get_constructor_bysig");
+   			LuaDLL.lua_pushstdcallcfunction(luaState,ctypeFunction);
+			LuaDLL.lua_setglobal(luaState,"ctype");
+   			LuaDLL.lua_pushstdcallcfunction(luaState,enumFromIntFunction);
+			LuaDLL.lua_setglobal(luaState,"enum");
+            
 		}
+        
 		/*
 		 * Creates the metatable for delegates
 		 */
@@ -405,6 +414,65 @@ namespace LuaInterface
 			}
 			return 1;
 		}
+        
+        private Type typeOf(IntPtr luaState, int idx)
+        {
+			int udata=LuaDLL.luanet_checkudata(luaState,1,"luaNet_class");
+            if (udata == -1) {
+                return null;
+            } else {
+                ProxyType pt = (ProxyType)objects[udata];
+                return pt.UnderlyingSystemType;
+            }            
+        }
+        
+        private int pushError(IntPtr luaState, string msg)
+        {
+            LuaDLL.lua_pushnil(luaState);
+            LuaDLL.lua_pushstring(luaState,msg);
+            return 2;
+        }
+        
+        private int ctype(IntPtr luaState) 
+        {
+            Type t = typeOf(luaState,1);
+            if (t == null) {
+                return pushError(luaState,"not a CLR class");
+            }
+            pushObject(luaState,t,"luaNet_metatable");
+            return 1;
+        }
+        
+        private int enumFromInt(IntPtr luaState)
+        {
+            Type t = typeOf(luaState,1);
+            if (t == null || ! t.IsEnum) {
+                return pushError(luaState,"not an enum");
+            }
+            object res = null;
+            LuaTypes lt = LuaDLL.lua_type(luaState,2);
+            if (lt == LuaTypes.LUA_TNUMBER) {
+                int ival = (int)LuaDLL.lua_tonumber(luaState,2);
+                res = Enum.ToObject(t,ival);                
+            } else 
+            if (lt == LuaTypes.LUA_TSTRING) {
+                string sflags = LuaDLL.lua_tostring(luaState,2);
+                string err = null;
+                try {
+                    res = Enum.Parse(t,sflags);
+                } catch (ArgumentException e) {
+                    err = e.Message;
+                }
+                if (err != null) {
+                    return pushError(luaState,err);
+                }
+            } else {
+                return pushError(luaState,"second argument must be a integer or a string");
+            }
+            pushObject(luaState,res,"luaNet_metatable");
+            return 1;
+        }
+        
 		/*
 		 * Pushes a type reference into the stack
 		 */

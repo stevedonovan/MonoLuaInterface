@@ -16,13 +16,13 @@ Lua.cs  LuaRegistrationHelper.cs  ObjectTranslator.cs \
 LuaDLL.cs  LuaScriptException.cs  ProxyType.cs
 
 $(ASSEMBLY): $(ASSEMBLY_SRC)
-	$(CSC) -out:$(ASSEMBLY) -t:library $(ASSEMBLY_SRC)
+	$(CSC) -out:$(ASSEMBLY) $(DEBUG) -t:library $(ASSEMBLY_SRC)
 
 $(RUNNER): LuaNetRunner.cs
-	$(CSC) -out:$(RUNNER) -r:$(ASSEMBLY) LuaNetRunner.cs
+	$(CSC) -out:$(RUNNER) $(DEBUG) -r:$(ASSEMBLY) LuaNetRunner.cs
 
 $(STUB): luastdcall.c
-	$(CC) $(SHARED) -o $(STUB) -I $(LUA_INCLUDE) luastdcall.c $(LUA_LIB)
+	$(CC) $(SHARED) -o $(STUB) $(DEBUG)  -I $(LUA_INCLUDE) luastdcall.c $(LUA_LIB)
 
 clean:
 	rm $(STUB) $(ASSEMBLY) $(RUNNER)
