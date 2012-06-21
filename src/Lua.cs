@@ -69,11 +69,6 @@ namespace LuaInterface
         LuaFunctionCallback panicCallback;
         // lockCallback, unlockCallback; used by debug code commented out for now
 
-        /// <summary>
-        /// Used to ensure multiple .net threads all get serialized by this single lock for access to the lua stack/objects
-        /// </summary>
-        object luaLock = new object();
-
 		public Lua()
 		{
 			luaState = LuaDLL.luaL_newstate();	// steffenj: Lua 5.1.1 API change (lua_open is gone)
@@ -98,8 +93,6 @@ namespace LuaInterface
             panicCallback = new LuaFunctionCallback(PanicCallback);
             LuaDLL.lua_atpanic(luaState, panicCallback);
 
-            //LuaDLL.lua_atlock(luaState, lockCallback = new LuaCSFunction(LockCallback));
-            //LuaDLL.lua_atunlock(luaState, unlockCallback = new LuaCSFunction(UnlockCallback));
         }
 
         private bool _StatePassed;
@@ -138,30 +131,6 @@ namespace LuaInterface
 
             _StatePassed = true;
     	}
-
-        /// <summary>
-        /// Called for each lua_lock call
-        /// </summary>
-        /// <param name="luaState"></param>
-        /// Not yet used
-        int LockCallback(IntPtr luaState)
-        {
-            // Monitor.Enter(luaLock);
-
-            return 0;
-        }
-
-        /// <summary>
-        /// Called for each lua_unlock call
-        /// </summary>
-        /// <param name="luaState"></param>
-        /// Not yet used
-        int UnlockCallback(IntPtr luaState)
-        {
-            // Monitor.Exit(luaLock);
-
-            return 0;
-        }
 
         public void Close()
         {
