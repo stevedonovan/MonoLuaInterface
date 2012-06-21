@@ -62,7 +62,8 @@ local function oprint(...)
         savef:write(concat({...},' '),'\n')
     end
     write(...)
-	write '\r\n'
+	--write '\r\n'
+    write '\n'
 end
 
 local function is_map_like(tbl)
@@ -163,10 +164,11 @@ function val2str(val)
 end
 
 function _pretty_print(...)
-    for i,val in ipairs{...} do
-        oprint(val2str(val))
+    local args = {n=select('#',...),...}
+    for i = 1,args.n do
+        oprint(val2str(args[i]))
     end
-    _G['_'] = arg[1]
+    _G['_'] = args[1]
 end
 
 local function compile(line)
@@ -193,19 +195,20 @@ function eval_lua(line)
         if not line then return end
     end
     local err,chunk
-    if not que then -- try compiling first as expression, then as statement
-        -- is it an expression?
-        err,chunk = compile('_pretty_print('..line..')')
-        if err then -- otherwise, a statement?
-            err,chunk = compile(line)
-        end
-    else -- expressions must be explicitly terminated with ?
-        if line:sub(-1,-1) == '?' then
+--~     if not que then -- try compiling first as expression, then as statement
+--~         -- is it an expression?
+--~         err,chunk = compile('_pretty_print('..line..')')
+--~         if err then -- otherwise, a statement?
+--~             err,chunk = compile(line)
+--~         end
+--~     else -- expressions must be explicitly terminated with ?
+        if line:match '^%s*=' then --or line:match '%?$' then
+            line = line:gsub ('^%s*=','')
             err,chunk = compile('_pretty_print('..line..')')
         else
             err,chunk = compile(line)
         end
-    end
+--~     end
     if not err then
         -- we can now execute the chunk
         err = evaluate(chunk)

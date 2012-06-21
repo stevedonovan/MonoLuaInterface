@@ -361,12 +361,12 @@ local function handle_luainit()
 end
 
 
-local import = _G.import
-if import then
-  lua_stdin_is_tty = import.lua_stdin_is_tty or lua_stdin_is_tty
-  setsignal        = import.setsignal or setsignal
-  LUA_RELEASE      = import.LUA_RELEASE or LUA_RELEASE
-  LUA_COPYRIGHT    = import.LUA_COPYRIGHT or LUA_COPYRIGHT
+local import_ = _G.import
+if import_ then
+  lua_stdin_is_tty = import_.lua_stdin_is_tty or lua_stdin_is_tty
+  setsignal        = import_.setsignal or setsignal
+  LUA_RELEASE      = import_.LUA_RELEASE or LUA_RELEASE
+  LUA_COPYRIGHT    = import_.LUA_COPYRIGHT or LUA_COPYRIGHT
   _G.import = nil
 end
 
@@ -388,11 +388,13 @@ if script ~= 0 then
 else
   _G.arg = nil
 end
-if has.i then
+if has.i then  
   dotty()
 elseif script == 0 and not has.e and not has.v then
   if lua_stdin_is_tty() then
     print_version()
+    require 'CLRPackage'
+    import 'System'
     dotty()
   else dofile(nil)  -- executes stdin as a file
   end

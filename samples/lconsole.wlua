@@ -17,7 +17,9 @@ local callback
 
 timer.Tick:Add(function()
 	timer:Stop()
-	callback()
+	if not pcall(callback) then
+        ferr:write 'callback hosed\n'
+    end
 end)
 
 local function call_later (fun)
@@ -51,17 +53,9 @@ function select_line (pane,lno)
 	if not lno then -- current line
         lno = current_line(pane)
 	end
-    local istart = 0
-    local i = 0
-    for line in enum(pane.Lines) do
-        local len = #line
-        if i == lno then
-            pane:Select(istart,len)
-            return
-        end
-        i = i + 1
-        istart = istart + len + 1
-    end
+	local pos = pane.SelectionStart
+    local start = pane:GetFirstCharIndexFromLine(lno)
+    pane:Select(start,pos - start + 1)
 end
 
 local lines = {}
@@ -70,7 +64,6 @@ local no_name = true
 local this_dir = Environment.CurrentDirectory
 local user_dir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)
 local session_dir = user_dir..'\\'..'li-session'
---ferr:write('session ',session_dir,'\n')
 
 if Directory.Exists(session_dir) then
     local files = Directory.GetFiles(session_dir,"*.lua")
@@ -316,16 +309,22 @@ text.KeyDown:Add(function(sender,args)
 	if args.KeyCode == Keys.Enter then
 		local lineNo = text:GetLineFromCharIndex(text.SelectionStart)
 		if lineNo ~= lastLine then -- for some reason, happens twice!
-			local line = text.Lines[lineNo]
-			line = line:gsub('^> ','')
-			lastLine = lineNo
-			call_later(function()
-				eval_lua(line)
-				append(lines,line)
-				help_idx = #lines + 1
-				write '> '
-			end)
-		end
+            if lineNo >= text.Lines.Length then
+                lineNo = text.Lines.Length - 1
+                --ferr:write(lineNo,' ',text.Lines.Length,' goofed\n')
+            end
+            do
+                local line = text.Lines[lineNo]
+                line = line:gsub('^> ','')
+                lastLine = lineNo
+                call_later(function()
+                    eval_lua(line)
+                    append(lines,line)
+                    help_idx = #lines + 1
+                    write '> '
+                end)
+            end
+        end
     end
 end)
 
@@ -404,6 +403,10 @@ write '> '
 if arg[1] and File.Exists(arg[1]) then
     load_lua_file(arg[1])
 end
+
+text.WordWrap = true
+console = text
+
 form:ShowDialog()
 
 
