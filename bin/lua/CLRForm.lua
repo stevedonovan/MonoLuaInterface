@@ -1,4 +1,5 @@
 require "CLRPackage"
+import "System"
 import "System.Windows.Forms"
 import "System.Drawing"
 local Directory = luanet.import_type("System.IO.Directory")
