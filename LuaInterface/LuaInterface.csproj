@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LuaInterface</RootNamespace>
+    <AssemblyName>LuaInterface</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="..\src\AssemblyInfo.cs" />
+    <Compile Include="..\src\CheckType.cs" />
+    <Compile Include="..\src\GenerateEventAssembly.cs" />
+    <Compile Include="..\src\Lua.cs" />
+    <Compile Include="..\src\LuaBase.cs" />
+    <Compile Include="..\src\LuaDLL.cs" />
+    <Compile Include="..\src\LuaException.cs" />
+    <Compile Include="..\src\LuaFunction.cs" />
+    <Compile Include="..\src\LuaGlobalAttribute.cs" />
+    <Compile Include="..\src\LuaHideAttribute.cs" />
+    <Compile Include="..\src\LuaRegistrationHelper.cs" />
+    <Compile Include="..\src\LuaScriptException.cs" />
+    <Compile Include="..\src\LuaTable.cs" />
+    <Compile Include="..\src\LuaUserData.cs" />
+    <Compile Include="..\src\MethodWrapper.cs" />
+    <Compile Include="..\src\ObjectTranslator.cs" />
+    <Compile Include="..\src\ProxyType.cs" />
+    <Compile Include="..\src\Metatables.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+</Project>

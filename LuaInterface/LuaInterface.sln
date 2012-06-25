@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuaInterface", "LuaInterface.csproj", "{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallLua", "CallLua\CallLua.csproj", "{DF85F36C-5970-462F-874D-564D0C4214F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF85F36C-5970-462F-874D-564D0C4214F2}.Debug|x86.ActiveCfg = Debug|x86
+		{DF85F36C-5970-462F-874D-564D0C4214F2}.Debug|x86.Build.0 = Debug|x86
+		{DF85F36C-5970-462F-874D-564D0C4214F2}.Release|x86.ActiveCfg = Release|x86
+		{DF85F36C-5970-462F-874D-564D0C4214F2}.Release|x86.Build.0 = Release|x86
+		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Debug|x86.ActiveCfg = Debug|x86
+		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Debug|x86.Build.0 = Debug|x86
+		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Release|x86.ActiveCfg = Release|x86
+		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = LuaInterface.csproj
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,43 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" ctype="Workspace" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../src/Metatables.cs" ctype="Workbench">
+    <Files>
+      <File FileName="../src/Lua.cs" Line="87" Column="1" />
+      <File FileName="../src/LuaDLL.cs" Line="1" Column="1" />
+      <File FileName="../src/Metatables.cs" Line="22" Column="12" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="CallLua" expanded="True">
+            <Node name="ExternalFiles" expanded="True" />
+          </Node>
+          <Node name="LuaInterface" expanded="True">
+            <Node name="ExternalFiles" expanded="True">
+              <Node name="Metatables.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.LuaInterface ctype="Properties">
+    <MonoDevelop.Ide.CustomExecutionModes ctype="CustomExecutionModes">
+      <Data Name="Default (Custom)" Id="e945fd69-e522-405b-9d95-129b9d75dd38" ModeId="Default">
+        <CommandData>
+          <Item Key="MonoDevelop.Ide.Execution.CustomArgsCustomizer">
+            <Value ctype="CustomArgsExecutionModeData">
+              <EnvironmentVariables />
+            </Value>
+          </Item>
+          <Item Key="MonoDevelop.Ide.Execution.MonoExecutionCustomizer">
+            <Value ctype="MonoExecutionParameters" />
+          </Item>
+        </CommandData>
+      </Data>
+    </MonoDevelop.Ide.CustomExecutionModes>
+  </MonoDevelop.Ide.ItemProperties.LuaInterface>
+</Properties>
