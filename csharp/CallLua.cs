@@ -77,11 +77,7 @@ public class CallLua {
             L:DoString 'print(1,2,3)'
         ");
 
-        Ext e = (Ext)new MyExt(L);
-        e.DoSomething();
-        Console.WriteLine("finish {0}",e.FinishSomething("else"));
-        Console.WriteLine("name is {0}",e.Name);
-        L.Close();
+
     }
 
 }
