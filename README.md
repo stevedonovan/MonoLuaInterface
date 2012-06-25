@@ -1,6 +1,6 @@
 LuaInterface is a library for integration between the Lua language and Microsoft .NET platform's Common Language Runtime (CLR).  Lua scripts can use it to instantiate CLR objects, access properties, call methods, and even handle events with Lua functions.
 
-Originally written by Fabio Mascarenhas, and currently maintained by Craig Presti at 
+Originally written by Fabio Mascarenhas, and currently maintained by Craig Presti at
 [here](http://code.google.com/p/luainterface)
 
 This is version 1.5.3, which was the last version to use C/Invoke to link dynamically to a native Lua shared library/DLL.
@@ -9,7 +9,7 @@ This port provides a working version of LuaInterface, buildable on Mono.
 
 On Debian/Ubuntu, you will need the `liblua5.1-dev` and `mono-devel` packages.
 
-To build, go into the src directory, and edit `makefile` so that it knows where your Lua headers are, and what the name of your C# compiler is. Then just do `make`.
+To build, go into the src directory, and run `./configure` (or just edit `config.inc` so that it knows where your Lua headers are, and what the name of your C# compiler is.) Then just do `make`.
 
 To install, go back to the root and run `./install` which is a Lua script.
 
@@ -54,7 +54,7 @@ lua.lua (c) David Manura, 2008-08
 > require 'CLRPackage'
 > Console.WriteLine("hello from Mono")  -- 'System' is already loaded...
 hello from Mono
-> 
+>
 ```
 
 It is straightforward to write GTK# applications in Lua - note that here the `import` call is passed the package name and the namespace, in cases where they are not the same:

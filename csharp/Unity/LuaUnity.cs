@@ -6,6 +6,7 @@
 
   It should be fairly straightforward to implement other needed methods here.
 */
+
 using System;
 using UnityEngine;
 using LuaInterface;
@@ -17,7 +18,7 @@ namespace LuaUnity
 		public static Lua L = null;
 		public static string resourcePath = null;
 
-		LuaFunction update;
+		LuaFunction update, start;
 
 		public void Init (string ScriptName) {
 			if (L == null) {
@@ -29,20 +30,23 @@ namespace LuaUnity
 
 			string script = resourcePath+ScriptName+".lua";
 			// will throw an exception on error...
-			L["__THIS__"] = this;
-			L["__SCRIPT__"] = ScriptName;
-			L.DoFile (script);
-			LuaTable env = L.GetTable("package.loaded."+ScriptName);
+			object[] res = L.DoFile (script);
+			LuaTable env = (LuaTable)res[0];
 			update = (LuaFunction)env["Update"];
+			start = (LuaFunction)env["Start"];
+
+			if (start != null)
+				start.Call(this);
 		}
 
 		// Update is called once per frame
 		void Update () {
 			if (update != null)
-				update.Call();
+				update.Call(this);
 		}
 
 	}
+
 
 }
 
