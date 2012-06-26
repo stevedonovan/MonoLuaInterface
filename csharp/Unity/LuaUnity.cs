@@ -18,35 +18,102 @@ namespace LuaUnity
 		public static Lua L = null;
 		public static string resourcePath = null;
 
-		LuaFunction update, start;
+		LuaFunction update, start,reset,
+            onMouseEnter,onMouseOver,onMouseDown,onMouseUp,onMouseDrag,
+            onGUI,onDestroy;
 
+        LuaTable self;
+
+        // called from Awake()...
 		public void Init (string ScriptName) {
-			if (L == null) {
+			if (L == null) { // we have one Lua state globally...
 				resourcePath = Application.dataPath+"/Resources/";
 				L = new Lua();
-				string packagePath = (string)L["package.path"];
-				L["package.path"] = resourcePath+"lua/?.lua;"+packagePath;
+				L["package.path"] = resourcePath+"lua/?.lua";
 			}
 
 			string script = resourcePath+ScriptName+".lua";
 			// will throw an exception on error...
 			object[] res = L.DoFile (script);
 			LuaTable env = (LuaTable)res[0];
+            // Poor man's OOP! These are all called on self
 			update = (LuaFunction)env["Update"];
 			start = (LuaFunction)env["Start"];
+            reset = (LuaFunction)env["Reset"];
+            onMouseEnter = (LuaFunction)env["OnMouseEnter"];
+            onMouseOver = (LuaFunction)env["OnMouseOver"];
+            onMouseDown = (LuaFunction)env["OnMouseDown"];
+            onMouseUp = (LuaFunction)env["OnMouseUp"];
+            onMouseDrag = (LuaFunction)env["OnMouseDrag"];
+            onGUI = (LuaFunction)env["OnGUI"];
+            onDestroy = (LuaFunction)env["OnDestroy"];
 
-			if (start != null)
-				start.Call(this);
+            // the script may have an Init method,
+            // which expects the object as an argument
+            // and returns a table, otherwise we make
+            // a new table with a 'this' field
+            LuaFunction init = (LuaFunction)env["Init"];
+            if (init != null) {
+                self = init.Call(this)[0];
+            } else {
+                self = new LuaTable();
+                self["this"] = this;
+            }
 		}
+
+        // selected overrideable functions
+        // http://unity3d.com/support/documentation/ScriptReference/MonoBehaviour.html
+        void Start () {
+            if (start != null)
+                start.Call(self);
+        }
 
 		// Update is called once per frame
 		void Update () {
 			if (update != null)
-				update.Call(this);
+				update.Call(self);
 		}
 
-	}
+        void Reset () {
+            if (reset != null)
+                reset.Call(self);
+        }
 
+        void OnMouseEnter() {
+            if (onMouseEnter != null)
+                onMouseEnter.Call(self);
+        }
+        void OnMouseOver() {
+            if (onMouseOver != null)
+                onMouseOver.Call(self);
+        }
+
+        void OnMouseDown() {
+            if (onMouseDown != null)
+                onMouseDown.Call(self);
+        }
+
+        void OnMouseUp() {
+            if (onMouseUp != null)
+                onMouseUp.Call(self);
+        }
+
+        void OnMouseDrag() {
+            if (onMouseDrag != null)
+                onMouseDrag.Call(self);
+        }
+
+        void OnGUI() {
+            if (onGUI != null)
+                onGUI.Call(self);
+        }
+
+        void OnDestroy() {
+            if (onDestroy != null)
+                onDestroy.Call(self);
+        }
+
+	}
 
 }
 
