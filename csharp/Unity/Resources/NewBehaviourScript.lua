@@ -12,12 +12,19 @@ local Init = function(this)
     return { this = this }
 end
 
+local sphere
+
 local Start = function(self)
-    self.this.transform:Rotate(0,20,0)
+	local this = self.this
+    this.transform:Rotate(0,20,0)
+    sphere = unity.GameObject.Find('Sphere')
+   	sphere.transform:Translate(1,0,0)
+   	
+   	local sph = this.gameObject:GetComponent(luanet.ctype(NewBehaviourScript))
 end
 
 local Update = function (self)
-    transform:Translate(0,0,0.5*delta)
+    transform:Translate(0,0,0.1*delta)
 end
 
 return {Init = Init, Start = Start, Update = Update}

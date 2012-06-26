@@ -54,9 +54,10 @@ namespace LuaUnity
             // a new table with a 'this' field
             LuaFunction init = (LuaFunction)env["Init"];
             if (init != null) {
-                self = init.Call(this)[0];
+                self = (LuaTable)(init.Call(this)[0]);
             } else {
-                self = new LuaTable();
+				L.NewTable(ScriptName);
+                self = (LuaTable)L[ScriptName];
                 self["this"] = this;
             }
 		}
