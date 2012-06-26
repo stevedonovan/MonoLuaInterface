@@ -10,6 +10,7 @@
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True" selected="True">
+          <Node name="LuaInterface" expanded="True" />
           <Node name="LuaNetRunner" expanded="True" />
         </State>
       </Pad>
