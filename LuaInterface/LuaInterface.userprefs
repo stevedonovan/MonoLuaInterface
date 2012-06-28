@@ -5,13 +5,14 @@
       <File FileName="..\src\Lua.cs" Line="87" Column="1" />
       <File FileName="..\src\LuaDLL.cs" Line="201" Column="34" />
       <File FileName="..\src\Metatables.cs" Line="22" Column="12" />
-      <File FileName="..\src\LuaNetRunner.cs" Line="20" Column="26" />
+      <File FileName="..\src\LuaNetRunner.cs" Line="56" Column="60" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True" selected="True">
           <Node name="LuaInterface" expanded="True" />
           <Node name="LuaNetRunner" expanded="True" />
+          <Node name="Tests" expanded="True" />
         </State>
       </Pad>
       <Pad Id="ClassPad">

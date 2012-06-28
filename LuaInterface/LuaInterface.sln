@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallLua", "CallLua\CallLua.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuaNetRunner", "LuaNetRunner\LuaNetRunner.csproj", "{378C7B25-6C91-4F74-B5A7-A18F6D685EB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{EED940BE-E828-463E-BF90-8BC824758149}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -32,6 +34,12 @@ Global
 		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Release|x86.Build.0 = Release|x86
 		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Unix|Any CPU.ActiveCfg = Unix|Any CPU
 		{E915A0A4-2641-4F7E-8A88-8F123FA88BF1}.Unix|Any CPU.Build.0 = Unix|Any CPU
+		{EED940BE-E828-463E-BF90-8BC824758149}.Debug|x86.ActiveCfg = Debug|x86
+		{EED940BE-E828-463E-BF90-8BC824758149}.Debug|x86.Build.0 = Debug|x86
+		{EED940BE-E828-463E-BF90-8BC824758149}.Release|x86.ActiveCfg = Release|x86
+		{EED940BE-E828-463E-BF90-8BC824758149}.Release|x86.Build.0 = Release|x86
+		{EED940BE-E828-463E-BF90-8BC824758149}.Unix|Any CPU.ActiveCfg = Debug|x86
+		{EED940BE-E828-463E-BF90-8BC824758149}.Unix|Any CPU.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = LuaInterface.csproj
