@@ -6,7 +6,7 @@ function shell(cmd)
     return res
 end
 
-local csc, shared, lua_include
+local csc, shared, lua_include, defines
 
 if shell 'which gmcs' then
     csc = 'gmcs'
@@ -23,6 +23,9 @@ if plat == 'Darwin' then
     shared = '-dynamiclib -undefined dynamic_lookup'
 else
     shared = '-shared'
+    if plat == 'Linux' then
+        defines = '__liblua__'
+    end
 end
 
 lua_include = shell 'ls /usr/include/lua.h'
@@ -41,6 +44,9 @@ local f = io.open('config.inc','w')
 f:write('LUA_INCLUDE=',lua_include,'\n')
 f:write('CSC=',csc,'\n')
 f:write('SHARED=',shared,'\n')
+if defines then
+    f:write('DEFINES= -d:',defines,'\n')
+end
 f:close()
 
 

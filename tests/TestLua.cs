@@ -1259,8 +1259,7 @@ namespace LuaInterface.Tests
             TestOk(!err);
             Console.WriteLine(errMsg.Message);
             TestOk("exception test" == errMsg.Message);
-			Console.WriteLine("interface returned: "+errMsg.ToString());
-
+			
             Destroy();
 		}
 
