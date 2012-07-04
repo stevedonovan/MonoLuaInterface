@@ -1247,7 +1247,7 @@ namespace LuaInterface.Tests
 		public void ThrowException() 
 		{
             Init();
-
+			Console.WriteLine("starting...");
             lua.DoString("luanet.load_assembly('mscorlib')");
             lua.DoString("luanet.load_assembly('TestLua')");
             lua.DoString("TestClass=luanet.import_type('LuaInterface.Tests.TestClass')");
@@ -1255,10 +1255,11 @@ namespace LuaInterface.Tests
 			lua.DoString("err,errMsg=pcall(test.exceptionMethod,test)");
 			bool err=(bool)lua["err"];
 			Exception errMsg=(Exception)lua["errMsg"];
+			Console.WriteLine("starting..."+errMsg.Message);
             TestOk(!err);
             Console.WriteLine(errMsg.Message);
             TestOk("exception test" == errMsg.Message);
-			//Console.WriteLine("interface returned: "+errMsg.ToString());
+			Console.WriteLine("interface returned: "+errMsg.ToString());
 
             Destroy();
 		}
@@ -1266,14 +1267,18 @@ namespace LuaInterface.Tests
         /*
          * Tests capturing an exception
          */
-        public void ThrowUncaughtException()
-        {
-            Init();
+        public void ThrowUncaughtException ()
+		{
+			Init ();
 
-            lua.DoString("luanet.load_assembly('mscorlib')");
-            lua.DoString("luanet.load_assembly('TestLua')");
-            lua.DoString("TestClass=luanet.import_type('LuaInterface.Tests.TestClass')");
-            lua.DoString("test=TestClass()");
+			try {
+				lua.DoString ("luanet.load_assembly('mscorlib')");
+				lua.DoString ("luanet.load_assembly('TestLua')");
+				lua.DoString ("TestClass=luanet.import_type('LuaInterface.Tests.TestClass')");
+				lua.DoString ("test=TestClass()");
+			} catch (Exception e) {
+				Console.WriteLine("we were thrown "+e.Message);
+			}
 
             try
             {

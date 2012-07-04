@@ -14,6 +14,8 @@ elseif shell 'which mcs' then
     csc = 'mcs'
 elseif shell 'which cli-csc' then
     csc = 'cli-csc'
+else
+    return print 'cannot find C# compiler on your path..'
 end
 
 local plat = shell 'uname'
