@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace LuaInterface
 {
@@ -39,7 +39,7 @@ namespace LuaInterface
         /// <param name="innerException">The .NET exception triggered by user-code.</param>
         /// <param name="source">The position in the script where the exception was triggered.</param>
         public LuaScriptException(Exception innerException, string source)
-            : base("A .NET exception occured in user-code", innerException)
+            : base(innerException.Message, innerException)
         {
             this.source = source;
             this.IsNetException = true;
@@ -47,7 +47,7 @@ namespace LuaInterface
 
         public override string ToString()
         {
-            // Prepend the error source
+           // Prepend the error source		
             return GetType().FullName + ": " + source + Message;
         }
     }

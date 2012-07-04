@@ -1256,10 +1256,8 @@ namespace LuaInterface.Tests
 			bool err=(bool)lua["err"];
 			Exception errMsg=(Exception)lua["errMsg"];
             TestOk(!err);
-            Console.WriteLine(errMsg.Message);
             TestOk("exception test" == errMsg.Message);
-			//Console.WriteLine("interface returned: "+errMsg.ToString());
-
+			
             Destroy();
 		}
 

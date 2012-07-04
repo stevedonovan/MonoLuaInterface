@@ -34,6 +34,16 @@ public class MyClass {
 
 }
 
+public class CSharp {
+	public virtual string MyMethod(string s) {
+		return s.ToUpper();
+	}	
+	
+	public static string UseMe (CSharp obj, string val) {
+		return obj.MyMethod(val);	
+	}
+}
+
 public class CallLua {
 
     public static void Main(string[] args) {
@@ -76,6 +86,23 @@ public class CallLua {
         L.DoString(@"
             L:DoString 'print(1,2,3)'
         ");
+		
+		// it is also possible to override a CLR class in Lua using luanet.make_object.
+		// This defines a proxy object which will successfully fool any C# code 
+		// receiving it.
+		 object[] R = L.DoString(@"
+			luanet.load_assembly 'CallLua'  -- load this program
+			local CSharp = luanet.import_type 'CSharp'
+			local T = {}
+			function T:MyMethod(s) 
+				return s:lower()
+            end
+			luanet.make_object(T,'CSharp')
+			print(CSharp.UseMe(T,'CoOl'))
+			return T
+		");
+		// but it's still a table, and there's no way to cast it to CSharp from here...
+		Console.WriteLine("type of returned value {0}",R[0].GetType());
 
 
     }
