@@ -1,6 +1,6 @@
-include ../src/config.inc
+include ../src/config.win
 
-BINDIR=../bin
+BINDIR=..\bin
 ASSEMBLY=LuaInterface.dll
 TEST=TestLua.exe
 EX=CallLua.exe
@@ -13,12 +13,17 @@ $(TEST):  TestLua.cs Entity.cs
 $(EX):  CallLua.cs
 	$(CSC) -r:$(ASSEMBLY) $^
 
-$(ASSEMBLY): $(BINDIR)/$(ASSEMBLY)
-	cp $<  $@
+$(ASSEMBLY): $(BINDIR)\$(ASSEMBLY)
+	copy $<
+	copy $(BINDIR)\luanet.dll
 
 run:	$(TEST)
-	mono $(EX)
-	mono $(TEST)
+	$(EX)
+	$(TEST)
+
+clean:
+	del $(ASSEMBLY) $(TEST) $(EX) luanet.dll
+
 
 
 

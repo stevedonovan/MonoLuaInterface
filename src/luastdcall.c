@@ -7,6 +7,8 @@
 #ifdef _WIN32
 #define LUA_DLLEXPORT __declspec(dllexport)
 #include "luastdcall-windows.h"
+#include <windows.h>
+BOOL APIENTRY DllMain(HANDLE module, DWORD reason, LPVOID reserved) { return TRUE; }
 #else
 #define LUA_DLLEXPORT
 #include "luastdcall-unix.h"
@@ -57,8 +59,8 @@ void *checkudata(lua_State *L, int ud, const char *tname)
   void *p = lua_touserdata(L, ud);
 
   if (p != NULL) {  /* value is a userdata? */
-    if (lua_getmetatable(L, ud)) 
-	{  
+    if (lua_getmetatable(L, ud))
+	{
 		int isEqual;
 
 		/* does it have a metatable? */
@@ -72,7 +74,7 @@ void *checkudata(lua_State *L, int ud, const char *tname)
 			return p;
 	}
   }
-  
+
   return NULL;
 }
 
@@ -82,7 +84,7 @@ LUA_DLLEXPORT int luanet_tonetobject(lua_State *L,int index) {
   if(lua_type(L,index)==LUA_TUSERDATA) {
     if(luaL_checkmetatable(L,index)) {
       udata=(int*)lua_touserdata(L,index);
-      if(udata!=NULL) return *udata; 
+      if(udata!=NULL) return *udata;
     }
     udata=(int*)checkudata(L,index,"luaNet_class");
     if(udata!=NULL) return *udata;
