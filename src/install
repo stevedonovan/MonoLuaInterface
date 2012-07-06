@@ -37,6 +37,7 @@ if not f then
     print ("cannot write "..target.."; you may need to be sudo")
     os.exit(1)
 end
+cwd = cwd:gsub ('/src$','')
 local wrapper = templ:format(cwd,ld)
 f:write(wrapper)
 f:close()

@@ -41,8 +41,14 @@
     <OutputPath>bin\Linux</OutputPath>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Windows|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Windows</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\csharp\CallLua.cs" />
+    <Compile Include="..\..\tests\CallLua.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LuaInterface.csproj">

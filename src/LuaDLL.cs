@@ -177,9 +177,9 @@ namespace LuaInterface
         #else
         const string DLL = "lua51";
         #endif
-		const string LUADLL = BASEPATH + DLL;		// steffenj: use Lua 5.1.1 dll  + DLLX
+		const string LUADLL = BASEPATH + DLL + DLLX;		// steffenj: use Lua 5.1.1 dll  + DLLX
 		const string LUALIBDLL = LUADLL;
-        const string STUBDLL = BASEPATH + "luanet";
+        const string STUBDLL = BASEPATH + "luanet" + DLLX;
 
 		// steffenj: BEGIN additional Lua API functions new in Lua 5.1
 		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]

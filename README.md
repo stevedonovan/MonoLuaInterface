@@ -1,19 +1,42 @@
-LuaInterface is a library for integration between the Lua language and Microsoft .NET platform's Common Language Runtime (CLR).  Lua scripts can use it to instantiate CLR objects, access properties, call methods, and even handle events with Lua functions.
+LuaInterface is a library for integration between the Lua language and Microsoft 
+.NET platform's Common Language Runtime (CLR).  Lua scripts can use it to 
+instantiate CLR objects, access properties, call methods, and even handle 
+events with Lua functions.
 
-Originally written by Fabio Mascarenhas, and currently maintained by Craig Presti at
+Originally written by Fabio Mascarenhas, and currently maintained by Craig 
+Presti at
 [here](http://code.google.com/p/luainterface)
 
-This is version 1.5.3, which was the last version to use C/Invoke to link dynamically to a native Lua shared library/DLL.
+This is version 1.5.3, which was the last version to use C/Invoke to link 
+dynamically to a native Lua shared library/DLL.
 
 This port provides a working version of LuaInterface, buildable on Mono.
 
 On Debian/Ubuntu, you will need the `liblua5.1-dev` and `mono-devel` packages.
 
-To build, go into the src directory, and run `./configure` (or just edit `config.inc` so that it knows where your Lua headers are, and what the name of your C# compiler is.) Then just do `make`.
+To build, go into the src directory, and:
 
-To install, go back to the root and run `./install` which is a Lua script.
+    $ ./configure
+    
+This requires a Lua installation to run, but no other dependencies. It will look
+for the Lua headers in the usual places, `/usr/include` and `/usr/include/lua51`,
+if your Lua directory is somewhere else altogether set LUA_INCLUDE:
 
-(You can also install globally with `sudo ./install /usr/local/bin`)
+    $ ./configure LUA_INCLUDE=/home/you/lua-5.1.5/src DEFINES=lua
+    
+`DEFINES` here is overriding the default on Linux, which is to assume 
+the Lua shared library looks like `liblua5.1.so` rather than `lua51.so`.
+
+(Currently, this project builds against Lua 5.1 or LuaJIT.)    
+
+    $ make
+    $ ,.install
+    
+Last step assumes you have a `~/bin` directory, but you can install globally with
+
+    $ sudo ./install /usr/local/bin
+    
+(You can also install globally with e.g `sudo ./install /usr/local/bin`)
 
 It will generate a wrapper script called `luai` looking like this:
 
@@ -22,8 +45,13 @@ It will generate a wrapper script called `luai` looking like this:
     export LD_LIBRARY_PATH=$LUAI
     export LUA_PATH=";;$LUAI/lua/?.lua"
     /usr/bin/mono $LUAI/luai.exe $*
+    
+We have to locally mess with `LD_LIBRARY_PATH` (or `DYLD_LIBRARY_PATH` on
+OS X) because LuaInterface will need to find both the Lua shared library and the
+stub library `luanet.so`.
 
-The samples directory contains the original samples, plus some extended ones from the Lua for Windows project.
+The samples directory contains the original samples, plus some extended ones 
+from the Lua for Windows project.
 
 Here is the proverbial 'Hello World':
 
@@ -36,7 +64,8 @@ local Math = luanet.import_type "System.Math"
 Console.WriteLine("sqrt(2) is {0}",Math.Sqrt(2))
 ```
 
-Using the `CLRPackage` utilities, it is even simpler, since individual classes will be loaded as needed:
+Using the `CLRPackage` utilities, it is even simpler, since individual classes will be 
+loaded as needed:
 
 ```lua
 -- hello2.lua
@@ -45,7 +74,8 @@ import "System"
 Console.WriteLine("sqrt(2) is {0}",Math.Sqrt(2))
 ```
 
-If you want an interactive prompt, then there is a Lua interpreter in Lua, called `lua.lua`, in the samples directory:
+If you want an interactive prompt, then there is a Lua interpreter in Lua, called 
+`lua.lua`, in the samples directory:
 
 ```
 samples$ luai lua.lua
@@ -57,7 +87,9 @@ hello from Mono
 >
 ```
 
-It is straightforward to write GTK# applications in Lua - note that here the `import` call is passed the package name and the namespace, in cases where they are not the same:
+It is straightforward to write GTK# applications in Lua - note that here the 
+`import` call is passed the package name and the namespace, in cases where 
+they are not the same:
 
 ```Lua
 -- hello-gtk.lua

@@ -6,7 +6,16 @@ function shell(cmd)
     return res
 end
 
-local csc, shared, lua_include, defines
+for _,a in ipairs(arg) do
+    local var,val = a:match('([^=]+)=(.+)')
+    if var then
+        _G[var] = val
+    end
+end
+
+local csc, shared
+local lua_include=LUA_INCLUDE
+local defines=DEFINES
 
 if shell 'which gmcs' then
     csc = 'gmcs'
@@ -22,13 +31,16 @@ local plat = shell 'uname'
 if plat == 'Darwin' then
     shared = '-dynamiclib -undefined dynamic_lookup'
 else
-    shared = '-shared'
-    if plat == 'Linux' then
-        defines = '__liblua__'
+    shared = '-shared -fPIC'
+    if not defines and plat == 'Linux' then
+        defines = 'liblua'
     end
 end
+if defines and not defines:match '^__%a+__$' then
+    defines = '__'..defines..'__'
+end
 
-lua_include = shell 'ls /usr/include/lua.h'
+lua_include = lua_include or shell 'ls /usr/include/lua.h'
 if not lua_include then
     lua_include = shell 'ls /usr/include/lua5.1/lua.h'
 end
