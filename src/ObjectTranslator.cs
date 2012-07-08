@@ -426,7 +426,7 @@ namespace LuaInterface
             }            
         }
         
-        private int pushError(IntPtr luaState, string msg)
+        public int pushError(IntPtr luaState, string msg)
         {
             LuaDLL.lua_pushnil(luaState);
             LuaDLL.lua_pushstring(luaState,msg);

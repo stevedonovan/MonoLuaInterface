@@ -50,10 +50,10 @@ namespace LuaRunner
                         string trace = e.StackTrace;
                         if (e.StackTrace.Length > 1300)
                             trace = e.StackTrace.Substring(0, 1300) + " [...] (traceback cut short)";
-
-                        Console.WriteLine();
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(e.Source + " raised a " + e.GetType().ToString());
+						
+						// sjd: make the error message more like standard Lua messages
+                        Console.WriteLine(e.Source + " " + e.Message);
+                        Console.WriteLine("raised a " + e.GetType().ToString());
                         Console.WriteLine(trace);
 
                         // wait for keypress if there is an error

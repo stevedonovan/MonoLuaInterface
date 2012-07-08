@@ -46,7 +46,7 @@ function luanet.namespace(ns)
     setmetatable(t,mt)
     return t
 end
-    
+
 local globalMT, packages
 
 local function set_global_mt()
@@ -96,7 +96,7 @@ function luanet.make_array (tp,tbl)
 	return arr
 end
 
-function luanet.enumerator(o)
+function luanet.each(o)
    local e = o:GetEnumerator()
    return function()
       if e:MoveNext() then

@@ -67,6 +67,7 @@ namespace LuaInterface
 		ObjectTranslator translator;
 
         LuaFunctionCallback panicCallback;
+		LuaCSFunction tracebackFunction;
         // lockCallback, unlockCallback; used by debug code commented out for now
 
 		public Lua()
@@ -88,6 +89,8 @@ namespace LuaInterface
 			translator=new ObjectTranslator(this,luaState);
             LuaDLL.lua_replace(luaState, (int)LuaIndexes.LUA_GLOBALSINDEX);
 			LuaDLL.luaL_dostring(luaState, Lua.init_luanet);	// steffenj: lua_dostring renamed to luaL_dostring
+			
+			tracebackFunction = new LuaCSFunction(traceback);
 
             // We need to keep this in a managed reference so the delegate doesn't get garbage collected
             panicCallback = new LuaFunctionCallback(PanicCallback);
@@ -294,20 +297,32 @@ namespace LuaInterface
 
             return null;            // Never reached - keeps compiler happy
         }
+		
+		private int traceback(IntPtr luaState)
+		{
+  		    LuaDLL.lua_getglobal(luaState,"debug");
+			LuaDLL.lua_getfield(luaState,-1,"traceback");
+			LuaDLL.lua_pushvalue(luaState,1);
+			LuaDLL.lua_pushnumber(luaState,2);
+			LuaDLL.lua_call (luaState,2,1);
+			//Console.WriteLine("result " + LuaDLL.lua_tostring(luaState,-1));
+			return 1;			
+		}
 
 		/*
 		 * Excutes a Lua file and returns all the chunk's return
 		 * values in an array
 		 */
 		public object[] DoFile(string fileName)
-		{
+		{			
+			LuaDLL.lua_pushstdcallcfunction(luaState,tracebackFunction);
 			int oldTop=LuaDLL.lua_gettop(luaState);
 			if(LuaDLL.luaL_loadfile(luaState,fileName)==0)
 			{
 			    executing = true;
                 try
-                {
-                    if (LuaDLL.lua_pcall(luaState, 0, -1, 0) == 0)
+                {		            					
+                    if (LuaDLL.lua_pcall(luaState, 0, -1, -2) == 0)
                         return translator.popValues(luaState, oldTop);
                     else
                         ThrowExceptionFromError(oldTop);
