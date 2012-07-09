@@ -63,7 +63,7 @@ local list = ListBox()
 local no_name = true
 local this_dir = Environment.CurrentDirectory
 local user_dir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)
-local session_dir = user_dir..'\\'..'li-session'
+local session_dir = user_dir..'/'..'li-session'
 
 if Directory.Exists(session_dir) then
     local files = Directory.GetFiles(session_dir,"*.lua")
@@ -88,7 +88,7 @@ end
 
 local function session_file (name)
 	if not name then return end
-    return session_dir..'\\'..name..'.lua'
+    return session_dir..'/'..name..'.lua'
 end
 
 local code = ConsoleTextBox() --RichTextBox()
@@ -397,7 +397,7 @@ function cd (path)
 	end
 end
 
-write 'ILUA: Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio\r\n'
+write 'Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio\r\n'
 write '> '
 
 if arg[1] and File.Exists(arg[1]) then

@@ -151,8 +151,37 @@ gtk.Application.Run()
 
 LuaInterface is usually used by CLR applications which need a scripting language.
 An example of the high-level interface with Lua is `tests/CallLua.cs`; this directory
-also has the original C# tests. These all pass, except for passing a managed function
-to `string.gsub`, which is a Lua limitation.
+also has the original C# tests. (These all pass, except for passing a managed function
+to `string.gsub`, which is a Lua limitation.)
+
+A basic C# program is here; it evaluates Lua expressions:
+
+```C#
+using System;
+using LuaInterface;
+
+public class TestLua {
+
+  public static void Main(string[] args) {
+    if (args.Length == 0) {
+       Console.WriteLine("provide a Lua expression!");
+    } else {
+       Lua L = new Lua();  // will open all the standard Lua libraries
+       try {
+         object[] results = L.DoString("return "+args[0]);
+         Console.WriteLine("answer is {0}",results[0]);
+       } catch(Exception e) {
+         Console.WriteLine("error: {0}",e.Message);
+       }
+       L.Close();
+    }
+  }
+
+}
+```
+
+It must be compiled with a reference to LuaInterface.dll, and both luanet.so and liblua5.1.so must
+be accessible on the library path.
 
 ## Lua API
 
@@ -172,5 +201,138 @@ loaded.
 
 This is given an object, and an index (string or integer). It can be used to look
 up a property value, and will return nil + error message if the property does
-not exist.
+not exist. (Looking up fields and indices directly will fail with an error).
+
+''luanet.make_object''
+
+This takes a table and a CLR class name and allows you to override any virtual methods
+of that class.
+
+For instance, given this C# class:
+
+```C#
+public class CSharp {
+	public virtual string MyMethod(string s) {
+		return s.ToUpper();
+	}
+
+	public static string UseMe (CSharp obj, string val) {
+		return obj.MyMethod(val);
+	}
+}
+```
+
+then the following Lua code creates a proxy object where `MyMethod` is overriden:
+
+```Lua
+luanet.load_assembly 'CallLua'  -- load the assembly containing CSharp
+local CSharp = luanet.import_type 'CSharp'
+local T = {}
+function T:MyMethod(s)
+    return s:lower()
+end
+luanet.make_object(T,'CSharp')
+print(CSharp.UseMe(T,'CoOl'))
+```
+
+There is a corresponding ``luanet.free_object`` for explicit disposal.
+
+(See tests/CallLua.cs)
+
+In addition, this version of LuaInterface defines two extra functions
+
+''luanet.ctype''
+
+This is the equivalent of `typeof` in C#; given a class proxy object, return the
+actual CLR type.
+
+```Lua
+samples $ luai lua.lua
+Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio
+lua.lua (c) David Manura, 2008-08
+> = String
+ProxyType(System.String): 54267293
+> ctype = luanet.ctype
+> = ctype(String)
+System.String: 2033388324
+
+```
+
+''luanet.enum''
+
+This has two forms. The first casts an integer into an enum type:
+
+```Lua
+> enum = luanet.enum
+> import 'System.Reflection'
+> = BindingFlags.Static
+Static: 8
+> = enum(BindingFlags,8)
+Static: 8
+```
+
+The second form parses a string representation for an enumeration type.
+This is useful for enum flags:
+
+```Lua
+> = enum(BindingFlags,'Static,Public')
+Static, Public: 24
+```
+
+It's now possible to use CLR reflection in a non-clumsy way; see `tests/ctype.lua`
+for an example of using the Lua API directly from Lua itself, by importing all
+static methods of the `LuaDLL` class.
+
+## CLRPackage
+
+This Lua module provides some very useful shortcuts. We have already seen `import`,
+which brings classes into the global Lua table. This is not appropriate for larger
+applications, so there is `luanet.namespace`. Note that its argument may be a table:
+
+```Lua
+local gtk,gdk = luanet.namespace {'Gtk','Gdk'}
+```
+
+(You do have to explicitly load the assemblies before using this)
+
+''luanet.make_array''
+
+This is a convenience function for creating CLR arrays; it is passed a class (the proxy,
+not the type) and a table of values.
+
+Note that the Lua expression `Class[10]` already makes us a `Class[]` array!
+
+Bear in mind that CLR arrays index from zero, and throw a range error if the index
+is out of bounds.
+
+''luanet.each''
+
+This constructs a Lua iterator from an IEnumerable interface:
+
+```Lua
+> dd = make_array(Double,{1,2,10})
+> for x in each(dd) do print(x) end
+1
+2
+10
+> import 'System.Collections'
+> al = ArrayList()
+> al:Add(10)
+> al:Add('hello')
+> for o in each(al) do print(o) end
+10
+hello
+> ht = Hashtable()
+> ht.one = 1
+> ht.two = 2
+> for p in each(ht) do print(p.Key,p.value) end
+one   1
+two   2
+
+```
+
+
+
+
+
 
