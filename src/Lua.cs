@@ -22,12 +22,11 @@ namespace LuaInterface
 	 * */
     public class Lua : IDisposable
 	{
-
 		static string init_luanet =
 			"local metatable = {}									\n"+
 			"local import_type = luanet.import_type							\n"+
 			"local load_assembly = luanet.load_assembly						\n"+
-			"											\n"+
+			"luanet.error = error											\n"+
 			"-- Lookup a .NET identifier component.							\n"+
 			"function metatable:__index(key) -- key is e.g. \"Form\"				\n"+
 			"    -- Get the fully-qualified name, e.g. \"System.Windows.Forms.Form\"		\n"+
@@ -61,7 +60,9 @@ namespace LuaInterface
 			"setmetatable(luanet, metatable)							\n"+
 			"											\n"+
 			"-- Preload the mscorlib assembly							\n"+
-			"luanet.load_assembly(\"mscorlib\")							\n";
+			"luanet.load_assembly(\"mscorlib\")							\n"+
+            "package.loaded.luanet = luanet\n";
+
 
 		/*readonly */ IntPtr luaState;
 		ObjectTranslator translator;
