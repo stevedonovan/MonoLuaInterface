@@ -26,11 +26,11 @@ namespace LuaInterface
                 MethodInfo mi = value as MethodInfo;
                 if (mi != null)
                 {
-                    IsReturnVoid = string.Compare(mi.ReturnType.Name, "System.Void", true) == 0;                    
+                    IsReturnVoid = string.Compare(mi.ReturnType.Name, "System.Void", true) == 0;
                 }
             }
         }
-        
+
         public bool IsReturnVoid;
 
         // List or arguments
@@ -63,7 +63,7 @@ namespace LuaInterface
 
     /*
      * Wrapper class for methods/constructors accessed from Lua.
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */
@@ -279,7 +279,7 @@ namespace LuaInterface
                     }
                 }
             }
-            else // Method from MethodBase instance 
+            else // Method from MethodBase instance
             {
                 if (methodToCall.ContainsGenericParameters)
                 {
@@ -359,11 +359,11 @@ namespace LuaInterface
                 _Translator.push(luaState, _LastCalledMethod.args[_LastCalledMethod.outList[index]]);
             }
 
-            //by isSingle 2010-09-10 11:26:31 
-            //Desc: 
+            //by isSingle 2010-09-10 11:26:31
+            //Desc:
             //  if not return void,we need add 1,
-            //  or we will lost the function's return value 
-            //  when call dotnet function like "int foo(arg1,out arg2,out arg3)" in lua code 
+            //  or we will lost the function's return value
+            //  when call dotnet function like "int foo(arg1,out arg2,out arg3)" in lua code
             if (!_LastCalledMethod.IsReturnVoid && nReturnValues > 0)
             {
                 nReturnValues++;
@@ -412,7 +412,7 @@ namespace LuaInterface
     /*
      * Wrapper class for events that does registration/deregistration
      * of event handlers.
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */
@@ -477,7 +477,7 @@ namespace LuaInterface
      * Base wrapper class for Lua function event handlers.
      * Subclasses that do actual event handling are created
      * at runtime.
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */
@@ -491,7 +491,7 @@ namespace LuaInterface
         {
             handler.Call(args);
         }
-        //public void handleEvent(object sender,object data) 
+        //public void handleEvent(object sender,object data)
         //{
         //    handler.call(new object[] { sender,data },new Type[0]);
         //}
@@ -501,7 +501,7 @@ namespace LuaInterface
      * Wrapper class for Lua functions as delegates
      * Subclasses with correct signatures are created
      * at runtime.
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */
@@ -545,7 +545,7 @@ namespace LuaInterface
 
     /*
      * Static helper methods for Lua tables acting as CLR objects.
-     * 
+     *
      * Author: Fabio Mascarenhas
      * Version: 1.0
      */

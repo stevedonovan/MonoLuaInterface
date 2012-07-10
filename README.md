@@ -7,10 +7,9 @@ Originally written by Fabio Mascarenhas, and currently maintained by Craig
 Presti at
 [here](http://code.google.com/p/luainterface)
 
-This is version 1.5.3, which was the last version to use C/Invoke to link
-dynamically to a native Lua shared library/DLL.
-
-This port provides a working version of LuaInterface, buildable on Mono.
+This corresponds to the latest version 2.0.3, backported to use P/Invoke against
+standard Lua 5.1 shared libraries. It provides a working version of LuaInterface
+buildable on Mono.
 
 On Debian/Ubuntu, you will need the `liblua5.1-dev` and `mono-devel` packages.
 
@@ -27,10 +26,17 @@ if your Lua directory is somewhere else altogether set LUA_INCLUDE:
 `DEFINES` here is overriding the default on Linux, which is to assume
 the Lua shared library looks like `liblua5.1.so` rather than `lua51.so`.
 
+Configuration of LuaInterface is controlled by two C# preprocessor defines,
+`__Windows__` and `__liblua__`.  The first makes the shared library extension '.dll',
+and the second makes the Lua shared library name 'liblua5.1' rather than 'lua51'.
+The latter is the default for Linux, at least for Debian/Ubuntu. Look at
+`src/LuaDLL.cs` to see how these are used, and how to modify for your
+configuration.
+
 (Currently, this project builds against Lua 5.1 or LuaJIT.)
 
     $ make
-    $ ,.install
+    $ ./
 
 Last step assumes you have a `~/bin` directory, but you can install globally with
 

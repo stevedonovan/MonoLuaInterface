@@ -6,11 +6,11 @@ using System.Collections;
 namespace LuaInterface
 {
     /*
-	 * Wrapper class for Lua tables
-	 *
-	 * Author: Fabio Mascarenhas
-	 * Version: 1.0
-	 */
+     * Wrapper class for Lua tables
+     *
+     * Author: Fabio Mascarenhas
+     * Version: 1.0
+     */
     public class LuaTable : LuaBase
     {
         //internal int _Reference;
@@ -46,7 +46,7 @@ namespace LuaInterface
         //        disposed = true;
         //    }
         //}
-        //~LuaTable() 
+        //~LuaTable()
         //{
         //    _Interpreter.dispose(_Reference);
         //}

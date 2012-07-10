@@ -5,7 +5,7 @@ using System.Text;
 namespace LuaInterface
 {
     /// <summary>
-    /// Base class to provide consistent disposal flow across lua objects. Uses code provided by Yves Duhoux and suggestions by Hans Schmeidenbacher and Qingrui Li 
+    /// Base class to provide consistent disposal flow across lua objects. Uses code provided by Yves Duhoux and suggestions by Hans Schmeidenbacher and Qingrui Li
     /// </summary>
     public abstract class LuaBase : IDisposable
     {

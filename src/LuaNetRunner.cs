@@ -5,23 +5,23 @@ using System.Threading;
 /*
  * Application to run Lua scripts that can use LuaInterface
  * from the console
- * 
+ *
  * Author: Fabio Mascarenhas
  * Version: 1.0
  */
 namespace LuaRunner
 {
-	public class LuaNetRunner
-	{
-		/*
-		 * Runs the Lua script passed as the first command-line argument.
-		 * It passed all the command-line arguments to the script.
-		 */
-		[STAThread]		// steffenj: testluaform.lua "Load" button complained with an exception that STAThread was missing
-		public static void Main(string[] args) 
-		{
-			if(args.Length > 0) 
-			{
+    public class LuaNetRunner
+    {
+        /*
+         * Runs the Lua script passed as the first command-line argument.
+         * It passed all the command-line arguments to the script.
+         */
+        [STAThread]		// steffenj: testluaform.lua "Load" button complained with an exception that STAThread was missing
+        public static void Main(string[] args)
+        {
+            if(args.Length > 0)
+            {
                 // For attaching from the debugger
                 // Thread.Sleep(20000);
 
@@ -50,8 +50,8 @@ namespace LuaRunner
                         string trace = e.StackTrace;
                         if (e.StackTrace.Length > 1300)
                             trace = e.StackTrace.Substring(0, 1300) + " [...] (traceback cut short)";
-						
-						// sjd: make the error message more like standard Lua messages
+
+                        // sjd: make the error message more like standard Lua messages
                         Console.WriteLine(e.Source + " " + e.Message);
                         Console.WriteLine("raised a " + e.GetType().ToString());
                         Console.WriteLine(trace);
@@ -61,12 +61,12 @@ namespace LuaRunner
                         // steffenj: END error message improved
                     }
                 }
-			} 
-			else 
-			{
-				Console.WriteLine("LuaRunner -- runs Lua scripts with CLR access");
-				Console.WriteLine("Usage: luarunner <script.lua> [{<arg>}]");
-			}
-		}
-	}
+            }
+            else
+            {
+                Console.WriteLine("LuaRunner -- runs Lua scripts with CLR access");
+                Console.WriteLine("Usage: luarunner <script.lua> [{<arg>}]");
+            }
+        }
+    }
 }

@@ -48,7 +48,7 @@ namespace LuaInterface
         //    {
         //        if (disposeManagedResources)
         //        {
-        //            if (_Reference != 0) 
+        //            if (_Reference != 0)
         //                _Interpreter.dispose(_Reference);
         //        }
 
