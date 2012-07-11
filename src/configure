@@ -21,7 +21,7 @@ return print [[
   LUA_INCLUDE  Lua include directory
     On Linux, we look first in /usr/include and then /usr/include/lua5.1
     otherwise assume ~/lua-5.1.4/src
-  DEFINES one or more of lib,dot, embed, Windows, novs (Linux default "lib dot")
+  DEFINES one or more of lib,dot, embed, Windows, novs, default
     lib -> liblua51  (Arch)
     lib novs -> liblua (Fedora)
     lib dot -> liblua5.1 (Debian/Ubuntu)
@@ -59,14 +59,33 @@ else
     return print 'cannot find C# compiler on your path..'
 end
 
+if not defines then
+    local possibilities = {
+        ['lua51'] = 'default', 
+        ['lua5.1'] = 'dot',
+        ['liblua51'] = 'lib',
+        ['liblua5.1'] = 'lib dot',
+        ['liblua'] = 'lib novs',
+    }
+
+    for lib, defs in pairs(possibilities) do
+        local fn,err = package.loadlib(lib..'.so','luaL_newstate')
+        if fn then
+            defines = defs
+            break
+        end
+    end
+    
+    if not defines then
+        return print 'you did not have a recognized Lua shared library!'
+    end
+end
+
 local plat = shell 'uname'
 if plat == 'Darwin' then
     shared = '-dynamiclib -undefined dynamic_lookup'
 else
     shared = '-shared -fpic'
-    if not defines and plat == 'Linux' then
-        defines = 'lib dot'
-    end
 end
 
 lua_include = lua_include or shell 'ls /usr/include/lua.h'
@@ -78,6 +97,10 @@ if not lua_include then
    lua_include = os.getenv('HOME')..'/lua-5.1.4/src'
 else
     lua_include = lua_include:gsub ('/lua%.h$','')
+end
+
+if defines == 'default' then
+    defines = nil
 end
 
 print 'writing configuration to config.inc'
