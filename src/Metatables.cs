@@ -21,14 +21,15 @@ namespace LuaInterface
          * __index metafunction for CLR objects. Implemented in Lua.
          */
         internal static string luaIndexFunction =
-    @"local function index(obj,name)
+    @"
+        local function index(obj,name)
         local meta=getmetatable(obj)
         local cached=meta.cache[name]
         if cached then
            return cached
         else
            local value,isFunc = get_object_member(obj,name)
-           if not value then error(isFunc,2) end
+           if value==nil and type(isFunc)=='string' then error(isFunc,2) end
            if isFunc then
             meta.cache[name]=value
            end
