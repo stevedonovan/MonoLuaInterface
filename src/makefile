@@ -16,7 +16,7 @@ Lua.cs  LuaRegistrationHelper.cs  ObjectTranslator.cs \
 LuaDLL.cs  LuaScriptException.cs  ProxyType.cs
 
 $(ASSEMBLY): $(ASSEMBLY_SRC)
-	$(CSC) $(DEFINES) -out:$(ASSEMBLY) $(DEBUG) -t:library $(ASSEMBLY_SRC)
+	$(CSC) $(DEFINES) $(FLAGS) -out:$(ASSEMBLY) $(DEBUG) -t:library $(ASSEMBLY_SRC)
 
 $(RUNNER): LuaNetRunner.cs
 	$(CSC) -out:$(RUNNER) $(DEBUG) -r:$(ASSEMBLY) LuaNetRunner.cs

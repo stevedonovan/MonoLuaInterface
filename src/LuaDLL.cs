@@ -172,14 +172,25 @@ namespace LuaInterface
         #else
         const string DLLX = ".so";
         #endif
-        #if __liblua__
-        const string DLL = "liblua5.1";
+        #if __lib__
+        const string PREFIX = "liblua";
         #else
-        const string DLL = "lua51";
+        const string PREFIX = "lua";
+        #endif
+        #if __novs__
+        const string DLL = PREFIX;
+        #elif __dot__ 
+        const string DLL = PREFIX+"5.1";
+        #else
+        const string DLL = PREFIX+"51";
         #endif
 		const string LUADLL = BASEPATH + DLL + DLLX;		// steffenj: use Lua 5.1.1 dll  + DLLX
 		const string LUALIBDLL = LUADLL;
+        #if __embed__
+        const string STUBDLL = LUADLL;
+        #else
         const string STUBDLL = BASEPATH + "luanet" + DLLX;
+        #endif
 
 		// steffenj: BEGIN additional Lua API functions new in Lua 5.1
 		[DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]

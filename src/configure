@@ -6,6 +6,33 @@ function shell(cmd)
     return res
 end
 
+function build_defines(defs)
+    local res = {}
+    for d in defs:gmatch '%a+' do
+        table.insert(res,'-d:__'..d..'__')
+    end
+    return table.concat(res,' ')
+end
+
+if arg[1] == '-h' or arg[1] == '--help' then
+return print [[
+  ./configure PARM1=VALUE1, ...
+  Parameters:
+  LUA_INCLUDE  Lua include directory
+    On Linux, we look first in /usr/include and then /usr/include/lua5.1
+    otherwise assume ~/lua-5.1.4/src
+  DEFINES one or more of lib,dot, embed, Windows, novs (Linux default "lib dot")
+    lib -> liblua51  (Arch)
+    lib novs -> liblua (Fedora)
+    lib dot -> liblua5.1 (Debian/Ubuntu)
+    dot -> lua5.1  (LuaBinaries)
+    default is lua51 (PUC build)
+    Extension is .so (.dll if Windows)
+    Use embed if luastdcall.c is compiled into your Lua shared library
+  FLAGS  debug or optimize (default optimize)  
+]]
+end
+
 for _,a in ipairs(arg) do
     local var,val = a:match('([^=]+)=(.+)')
     if var then
@@ -16,6 +43,11 @@ end
 local csc, shared
 local lua_include=LUA_INCLUDE
 local defines=DEFINES
+local flags=FLAGS
+
+if not flags then
+    flags = 'optimize'
+end
 
 if shell 'which gmcs' then
     csc = 'gmcs'
@@ -31,13 +63,10 @@ local plat = shell 'uname'
 if plat == 'Darwin' then
     shared = '-dynamiclib -undefined dynamic_lookup'
 else
-    shared = '-shared -fPIC'
+    shared = '-shared -fpic'
     if not defines and plat == 'Linux' then
-        defines = 'liblua'
+        defines = 'lib dot'
     end
-end
-if defines and not defines:match '^__%a+__$' then
-    defines = '__'..defines..'__'
 end
 
 lua_include = lua_include or shell 'ls /usr/include/lua.h'
@@ -56,8 +85,9 @@ local f = io.open('config.inc','w')
 f:write('LUA_INCLUDE=',lua_include,'\n')
 f:write('CSC=',csc,'\n')
 f:write('SHARED=',shared,'\n')
+f:write('FLAGS=-',flags,'\n')
 if defines then
-    f:write('DEFINES= -d:',defines,'\n')
+    f:write('DEFINES=',build_defines(defines),'\n')
 end
 f:close()
 

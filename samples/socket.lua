@@ -1,12 +1,14 @@
 --require("compat-5.1")
 
 luanet.load_assembly("System")
+Math=luanet.import_type("System.Math")
+print(Math.Pow(2,3))
 
 WebClient=luanet.import_type("System.Net.WebClient")
 StreamReader=luanet.import_type("System.IO.StreamReader")
-Math=luanet.import_type("System.Math")
 
-print(Math:Pow(2,3))
+
+
 
 myWebClient = WebClient()
 myStream = myWebClient:OpenRead(arg[1])
