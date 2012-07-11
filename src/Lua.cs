@@ -252,27 +252,7 @@ namespace LuaInterface
          */
         public object[] DoString(string chunk)
         {
-            int oldTop=LuaDLL.lua_gettop(luaState);
-            if (LuaDLL.luaL_loadbuffer(luaState, chunk, chunk.Length,"chunk") == 0)
-            {
-                executing = true;
-                try
-                {
-                    if (LuaDLL.lua_pcall(luaState, 0, -1, 0) == 0)
-                        return translator.popValues(luaState, oldTop);
-                    else {
-                        Console.WriteLine("err {0}",LuaDLL.lua_tostring(luaState,-1));
-                        ThrowExceptionFromError(oldTop);
-                    }
-                }
-                finally { executing = false; }
-            }
-            else {
-                Console.WriteLine("broke {0}",LuaDLL.lua_tostring(luaState,-1));
-                ThrowExceptionFromError(oldTop);
-            }
-
-            return null;            // Never reached - keeps compiler happy
+            return DoString(chunk,"chunk");
         }
 
         /// <summary>
@@ -309,7 +289,6 @@ namespace LuaInterface
             LuaDLL.lua_pushvalue(luaState,1);
             LuaDLL.lua_pushnumber(luaState,2);
             LuaDLL.lua_call (luaState,2,1);
-            //Console.WriteLine("result " + LuaDLL.lua_tostring(luaState,-1));
             return 1;
         }
 
