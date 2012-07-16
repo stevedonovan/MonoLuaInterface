@@ -1,14 +1,20 @@
+---- A simple interactive Console for LuaInterface using Gtk#
 require 'CLRPackage'
 import ('gtk-sharp','Gtk')
 luanet.load_assembly 'gdk-sharp'
+luanet.load_assembly 'glib-sharp'
 local Gdk = luanet.namespace 'Gdk'
+local Glib = luanet.namespace 'GLib'
 
 local ferr = io.stderr  -- for debugging
 
+--~ Glib.ExceptionManager.UnhandledException:Add(function(ex,what)
+--~     ferr:write(tostring(ex),'  ',tostring(what),'\n')
+--~     ex.ExitApplication = false
+--~ end)
+
 local Up, Down, Return = Gdk.Key.Up, Gdk.Key.Down, Gdk.Key.Return
 
-luanet.load_assembly 'ExTextView.dll'
-local ExTextView = luanet.import_type 'ExTextView'
 Application.Init()
 
 local win = Window("Gtk# Lua")
@@ -19,8 +25,7 @@ end)
 
 win:Resize(500,500)
 
-local edit = ExTextView()
-local buffer = edit.Buffer
+local buffer
 local history = {idx=1}
 
 function add_history(line)
@@ -52,8 +57,13 @@ local function set_last_line(text)
     buffer:Insert(start,'> '..text)
 end
 
-local filter = {}
-function filter:Filter(key)
+-- we need to subclass Gtk.TextView, since we want to trap
+-- the up and down keys for accessing command history
+
+local edit = {}
+
+function edit:OnKeyPressEvent(event)
+    local key = event.Key
     if key == Up or key == Down then
         local delta 
         if key == Down then
@@ -64,14 +74,14 @@ function filter:Filter(key)
         history.idx = clamp(history.idx + delta,1,#history)
         set_last_line(history[history.idx])        
         return true
+    else
+        return self.base:OnKeyPressEvent(event)
     end
-    return false
 end
-luanet.make_object (filter,'ExTextViewFilter')
 
-edit.Filter = filter
+luanet.make_object(edit,'Gtk.TextView')
+buffer = edit.Buffer
 
-local prompt = '> '
 
 local function create_tag(colour)
     local tag = TextTag(colour)
@@ -84,10 +94,10 @@ local plain,err_style = create_tag "#00F"  , create_tag "#F00"
 
 function write(txt,tag)
     tag = tag or plain
-    --buffer:InsertAtCursor(txt)
     buffer:InsertWithTags(buffer.EndIter,txt,tag)
 end
 
+local prompt = '> '
 write 'Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio\n'
 write(prompt)
 
@@ -106,19 +116,17 @@ local function collect(ok,...)
 end
 
 function eval(s)
-    s = s:gsub('%s*>%s+',''):gsub('\n$','')
     if s == 'quit' then Application.Quit() end
     local expr = s:match('^%s*=%s+(.+)')
     if expr then s = 'return '..expr end
-    add_history(s)
-    local chunk,err = loadstring(s)
+    local chunk,err = loadstring(s,'tmp')
     local ok,res
     if chunk then
         ok,res = collect(pcall(chunk))
         if not ok then err = res[1] end
     end
     if err then
-        write(err..'\n',err_style)
+        write(tostring(err)..'\n',err_style)
     elseif res.n > 0 then
         print(unpack(res,1,res.n))
         _G._ = res[1]  -- last expression put into underscore global
@@ -129,21 +137,22 @@ edit.KeyReleaseEvent:Add(function(obj,e)
     local event = e.Event
     if event.Key == Return then
         local start,endi = line_range()
-        eval(start:GetText(endi))
+        local stmt = start:GetText(endi)
+        local i1,i2 = stmt:find(prompt,1,true)
+        if i1 == 1 then
+            stmt = stmt:sub(i2+1)
+        end
+        stmt = stmt:gsub('\n$','')
+        eval(stmt)
+        add_history(stmt)
         buffer:InsertAtCursor(prompt)
     end
 end)
 
---~ edit.MouseDownEvent:Add(function()
---~ end)
-
 local sbox = ScrolledWindow()
 sbox.VscrollbarPolicy = PolicyType.Always
 sbox:Add(edit)
-
 win:Add(sbox)
-
 win:ShowAll()
-
 Application.Run()
 

@@ -360,8 +360,8 @@ namespace LuaInterface
             generator.Emit(OpCodes.Ldarg_2);
             generator.Emit(OpCodes.Stfld,returnTypesField);
             generator.Emit(OpCodes.Ret);
-            // Generates overriden versions of the klass' public virtual methods
-			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // | BindingFlags.DeclaredOnly;
+            // Generates overriden versions of the klass' public and protected virtual methods that have been explicitly specfied
+			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             MethodInfo[] classMethods=klass.GetMethods(flags);
             returnTypes=new Type[classMethods.Length][];
             int i=0;
@@ -392,6 +392,7 @@ namespace LuaInterface
                 typeof(LuaTable),new Type[0]);
             myType.DefineMethodOverride(returnTableMethod,typeof(ILuaGeneratedType).GetMethod("__luaInterface_getLuaTable"));
             generator=returnTableMethod.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldfld,luaTableField);
             generator.Emit(OpCodes.Ret);
             // Creates the type
@@ -434,16 +435,17 @@ namespace LuaInterface
             // directly, for use by the base field of the table
             if(generateBase)
             {
-                MethodBuilder baseMethod=myType.DefineMethod("__luaInterface_base_"+method.Name,
-                    MethodAttributes.Private|MethodAttributes.NewSlot|MethodAttributes.HideBySig,
+                String baseName = "__luaInterface_base_"+method.Name;
+                MethodBuilder baseMethod=myType.DefineMethod(baseName,
+                    MethodAttributes.Public|MethodAttributes.NewSlot|MethodAttributes.HideBySig,
                     returnType,paramTypes);
                 ILGenerator generatorBase=baseMethod.GetILGenerator();
                 generatorBase.Emit(OpCodes.Ldarg_0);
                 for(int i=0;i<paramTypes.Length;i++)
                     generatorBase.Emit(OpCodes.Ldarg,i+1);
                 generatorBase.Emit(OpCodes.Call,method);
-                if(returnType == typeof(void))
-                    generatorBase.Emit(OpCodes.Pop);
+                //if (returnType == typeof(void))
+                 //   generatorBase.Emit(OpCodes.Pop);
                 generatorBase.Emit(OpCodes.Ret);
             }
 
