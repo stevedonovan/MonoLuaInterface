@@ -273,6 +273,9 @@ namespace LuaInterface
          */
         private int registerTable(IntPtr luaState)
         {
+#if __NOGEN__
+				translator.throwError(luaState,"Tables as Objects not implemnented");
+#else
             if(LuaDLL.lua_type(luaState,1)==LuaTypes.LUA_TTABLE)
             {
                 LuaTable luaTable=getTable(luaState,1);
@@ -308,6 +311,7 @@ namespace LuaInterface
                     throwError(luaState, "register_table: superclass name can not be null");
             }
             else throwError(luaState,"register_table: first arg is not a table");
+#endif
             return 0;
         }
         /*

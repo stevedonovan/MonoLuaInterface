@@ -131,11 +131,19 @@ namespace LuaInterface
             }
             else if (typeof(Delegate).IsAssignableFrom(paramType) && luatype == LuaTypes.LUA_TFUNCTION)
             {
+#if __NOGEN__
+				translator.throwError(luaState,"Delegates not implemnented");
+#else
                 return new ExtractValue(new DelegateGenerator(translator, paramType).extractGenerated);
+#endif
             }
             else if (paramType.IsInterface && luatype == LuaTypes.LUA_TTABLE)
             {
+#if __NOGEN__
+				translator.throwError(luaState,"Interfaces not implemnented");
+#else
                 return new ExtractValue(new ClassGenerator(translator, paramType).extractGenerated);
+#endif
             }
             else if ((paramType.IsInterface || paramType.IsClass) && luatype == LuaTypes.LUA_TNIL)
             {

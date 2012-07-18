@@ -519,7 +519,11 @@ namespace LuaInterface
          */
         public object GetTable(Type interfaceType, string fullPath)
         {
+#if __NOGEN__
+				translator.throwError(luaState,"Tables as interfaces not implemnented");
+#else
             return CodeGeneration.Instance.GetClassInstance(interfaceType,GetTable(fullPath));
+#endif
         }
         /*
          * Gets a function global variable
@@ -535,7 +539,11 @@ namespace LuaInterface
          */
         public Delegate GetFunction(Type delegateType,string fullPath)
         {
+#if __NOGEN__
+				translator.throwError(luaState,"function delegates not implemnented");
+#else
             return CodeGeneration.Instance.GetDelegate(delegateType,GetFunction(fullPath));
+#endif
         }
         /*
          * Calls the object as a function with the provided arguments,

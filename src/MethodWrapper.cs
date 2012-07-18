@@ -420,13 +420,18 @@ namespace LuaInterface
          */
         public Delegate Add(LuaFunction function)
         {
+#if __NOGEN__
+			translator.throwError(luaState,"Delegates not implemnented");
+			return null;
+#else
             //CP: Fix by Ben Bryant for event handling with one parameter
             //link: http://luaforge.net/forum/message.php?msg_id=9266
             Delegate handlerDelegate = CodeGeneration.Instance.GetDelegate(eventInfo.EventHandlerType, function);
             eventInfo.AddEventHandler(target, handlerDelegate);
             pendingEvents.Add(handlerDelegate, this);
-
+	
             return handlerDelegate;
+#endif
 
 
             //MethodInfo mi = eventInfo.EventHandlerType.GetMethod("Invoke");
