@@ -126,10 +126,10 @@ namespace LuaInterface
         {
             return _Translator.interpreter.SetPendingException(e);
         }
-        
+
         private static bool IsInteger(double x) {
-            return Math.Ceiling(x) == x;	
-        }			
+            return Math.Ceiling(x) == x;
+        }
 
 
         /*
@@ -161,16 +161,16 @@ namespace LuaInterface
                 if (_LastCalledMethod.cachedMethod != null) // Cached?
                 {
                     int numStackToSkip = isStatic ? 0 : 1; // If this is an instance invoe we will have an extra arg on the stack for the targetObject
-                    int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;					
+                    int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;
                     MethodBase method = _LastCalledMethod.cachedMethod;
-                    
+
                     if (numArgsPassed == _LastCalledMethod.argTypes.Length) // No. of args match?
                     {
                         if (!LuaDLL.lua_checkstack(luaState, _LastCalledMethod.outList.Length + 6))
                             throw new LuaException("Lua stack overflow");
-                        
+
                         object[] args = _LastCalledMethod.args;
-                        
+
                         try
                         {
                             for (int i = 0; i < _LastCalledMethod.argTypes.Length; i++)
@@ -178,7 +178,7 @@ namespace LuaInterface
                                 MethodArgs type = _LastCalledMethod.argTypes[i];
                                 object luaParamValue = type.extractValue(luaState, i + 1 + numStackToSkip);
                                 if (_LastCalledMethod.argTypes[i].isParamsArray)
-                                {									                                    
+                                {
                                     args[type.index] = _Translator.tableToArray(luaParamValue,type.paramsArrayType);
                                 }
                                 else
@@ -421,7 +421,7 @@ namespace LuaInterface
         public Delegate Add(LuaFunction function)
         {
 #if __NOGEN__
-			translator.throwError(luaState,"Delegates not implemnented");
+			//translator.throwError(luaState,"Delegates not implemnented");
 			return null;
 #else
             //CP: Fix by Ben Bryant for event handling with one parameter
@@ -429,7 +429,7 @@ namespace LuaInterface
             Delegate handlerDelegate = CodeGeneration.Instance.GetDelegate(eventInfo.EventHandlerType, function);
             eventInfo.AddEventHandler(target, handlerDelegate);
             pendingEvents.Add(handlerDelegate, this);
-	
+
             return handlerDelegate;
 #endif
 

@@ -274,7 +274,7 @@ namespace LuaInterface
         private int registerTable(IntPtr luaState)
         {
 #if __NOGEN__
-				translator.throwError(luaState,"Tables as Objects not implemnented");
+				throwError(luaState,"Tables as Objects not implemnented");
 #else
             if(LuaDLL.lua_type(luaState,1)==LuaTypes.LUA_TTABLE)
             {
@@ -815,6 +815,7 @@ namespace LuaInterface
         // else if(o is ILuaGeneratedType)
         static bool IsILua(object o)
         {
+#if ! __NOGEN__
             if(o is ILuaGeneratedType)
             {
                 // Make sure we are _really_ ILuaGenerated
@@ -823,6 +824,7 @@ namespace LuaInterface
                 return (typ.GetInterface("ILuaGeneratedType") != null);
             }
             else
+#endif
                 return false;
         }
 
@@ -859,7 +861,9 @@ namespace LuaInterface
             }
             else if(IsILua(o))
             {
+#if ! __NOGEN__
                 (((ILuaGeneratedType)o).__luaInterface_getLuaTable()).push(luaState);
+#endif
             }
             else if(o is LuaTable)
             {
@@ -886,7 +890,7 @@ namespace LuaInterface
         {
             return metaFunctions.matchParameters(luaState,method,ref methodCache);
         }
-		
+
 		internal Array tableToArray(object luaParamValue, Type paramArrayType) {
 			return metaFunctions.TableToArray(luaParamValue,paramArrayType);
 		}
