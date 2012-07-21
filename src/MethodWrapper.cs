@@ -26,7 +26,8 @@ namespace LuaInterface
                 MethodInfo mi = value as MethodInfo;
                 if (mi != null)
                 {
-                    IsReturnVoid = string.Compare(mi.ReturnType.Name, "System.Void", true) == 0;
+                    //SJD this is guaranteed to be correct irrespective of actual name used for type..
+					IsReturnVoid = mi.ReturnType == typeof(void);
                 }
             }
         }
@@ -125,6 +126,10 @@ namespace LuaInterface
         {
             return _Translator.interpreter.SetPendingException(e);
         }
+		
+		private static bool IsInteger(double x) {
+			return Math.Ceiling(x) == x;	
+		}			
 
 
         /*
@@ -180,11 +185,23 @@ namespace LuaInterface
                                         LuaTable table = (LuaTable)luaParamValue;
 
                                         paramArray = Array.CreateInstance(paramArrayType, table.Values.Count);
-
-                                        for (int x = 1; x <= table.Values.Count; x++)
-                                        {
-                                            paramArray.SetValue(Convert.ChangeType(table[x], paramArrayType), x - 1);
-                                        }
+										if (paramArrayType != typeof(object)) {
+	                                        for (int x = 1; x <= table.Values.Count; x++)
+	                                        {
+	                                            paramArray.SetValue(Convert.ChangeType(table[x], paramArrayType), x - 1);
+	                                        }
+										} else {
+	                                        for (int x = 1; x <= table.Values.Count; x++)
+	                                        {
+												object o = table[x];
+												if (o.GetType() == typeof(double)) {
+													double val = (double)o;
+													if (IsInteger(val))
+														o = Convert.ToInt32(val);
+												}
+	                                            paramArray.SetValue(o, x - 1);
+											}											
+										}
                                     }
                                     else
                                     {

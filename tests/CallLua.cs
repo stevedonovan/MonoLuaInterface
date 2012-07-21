@@ -44,13 +44,47 @@ public class CSharp {
 	}
 }
 
+public class RefParms {
+	public void Args(out int a, out int b) {
+		a = 2;
+		b = 3;
+	}
+	
+	public int ArgsI(out int a, out int b) {
+		a = 2;
+		b = 3;
+		return 1;
+	}
+	
+	public void ArgsVar(params object[] obj) {
+		int i = (int)obj[0];	
+		Console.WriteLine("cool {0}",i);
+	}
+	
+}
+
 public class CallLua {
+	
+	public static bool IsInteger(double x) {
+		return Math.Ceiling(x) == x;	
+	}
+	
 
     public static void Main(string[] args) {
         Lua L = new Lua();
-
+		
+		// testing out parameters and type coercion for object[] args.
+		L["obj"] = new RefParms();
+		dump("void,out,out",L.DoString("return obj:Args()"));
+		dump("int,out,out",L.DoString("return obj:ArgsI()"));
+		L.DoString("obj:ArgsVar{1}");
+		Console.WriteLine("equals {0} {1} {2}",IsInteger(2.3),IsInteger(0),IsInteger(44));
+		//Environment.Exit(0);
+		
         object[] res = L.DoString("return 20,'hello'","tmp");
         Console.WriteLine("returned {0} {1}",res[0],res[1]);
+		
+		
 
         L.DoString("answer = 42");
         Console.WriteLine("answer was {0}",L["answer"]);
@@ -106,6 +140,18 @@ public class CallLua {
 
 
     }
+	
+	static void dump(string msg, object[] values) {
+		Console.WriteLine("{0}:",msg);
+		foreach(object o in values) {
+			if (o == null) {
+				Console.WriteLine("\tnull");
+			} else {
+				Console.WriteLine("\t({0}) {1}",o.GetType(),o);
+			}
+		}
+	}
+	
 
 }
 

@@ -729,6 +729,11 @@ namespace LuaInterface
             LuaDLL.lua_pushnil(luaState);
             return 1;
         }
+		
+		private static bool IsInteger(double x) {
+			return Math.Ceiling(x) == x;	
+		}			
+
         /*
          * Matches a method against its arguments in the Lua stack. Returns
          * if the match was succesful. It it was also returns the information
@@ -793,10 +798,15 @@ namespace LuaInterface
                         tableEnumerator.Reset();
 
                         int paramArrayIndex = 0;
-
+						
                         while(tableEnumerator.MoveNext())
                         {
-                            paramArray.SetValue(Convert.ChangeType(tableEnumerator.Value, currentNetParam.ParameterType.GetElementType()), paramArrayIndex);
+							object o = tableEnumerator.Value;
+							if (paramArrayType == typeof(object)) { 
+								if (o != null && o.GetType() == typeof(double) && IsInteger((double)o))
+									o = Convert.ToInt32((double)o);
+							}													
+                            paramArray.SetValue(Convert.ChangeType(o, paramArrayType), paramArrayIndex);
                             paramArrayIndex++;
                         }
                     }

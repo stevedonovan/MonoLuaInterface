@@ -184,7 +184,7 @@ namespace LuaInterface
         #else
         const string DLL = PREFIX+"51";
         #endif
-		const string LUADLL = BASEPATH + DLL + DLLX;		// steffenj: use Lua 5.1.1 dll  + DLLX
+		const string LUADLL = BASEPATH + DLL + DLLX;
 		const string LUALIBDLL = LUADLL;
         #if __embed__
         const string STUBDLL = LUADLL;
