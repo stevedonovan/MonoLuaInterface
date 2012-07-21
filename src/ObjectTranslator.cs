@@ -882,5 +882,9 @@ namespace LuaInterface
         {
             return metaFunctions.matchParameters(luaState,method,ref methodCache);
         }
+		
+		internal Array tableToArray(object luaParamValue, Type paramArrayType) {
+			return metaFunctions.TableToArray(luaParamValue,paramArrayType);
+		}
     }
 }

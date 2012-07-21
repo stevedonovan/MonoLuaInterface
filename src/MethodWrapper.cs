@@ -161,63 +161,32 @@ namespace LuaInterface
                 if (_LastCalledMethod.cachedMethod != null) // Cached?
                 {
                     int numStackToSkip = isStatic ? 0 : 1; // If this is an instance invoe we will have an extra arg on the stack for the targetObject
-                    int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;
-
-                    if (numArgsPassed == _LastCalledMethod.argTypes.Length) // No. of args match?
+                    int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;					
+    				MethodBase method = _LastCalledMethod.cachedMethod;
+					
+					if (numArgsPassed == _LastCalledMethod.argTypes.Length) // No. of args match?
                     {
                         if (!LuaDLL.lua_checkstack(luaState, _LastCalledMethod.outList.Length + 6))
                             throw new LuaException("Lua stack overflow");
-
-                        try
+						
+     					object[] args = _LastCalledMethod.args;
+						
+						try
                         {
                             for (int i = 0; i < _LastCalledMethod.argTypes.Length; i++)
                             {
+								MethodArgs type = _LastCalledMethod.argTypes[i];
+								object luaParamValue = type.extractValue(luaState, i + 1 + numStackToSkip);
                                 if (_LastCalledMethod.argTypes[i].isParamsArray)
-                                {
-                                    object luaParamValue = _LastCalledMethod.argTypes[i].extractValue(luaState, i + 1 + numStackToSkip);
-
-                                    Type paramArrayType = _LastCalledMethod.argTypes[i].paramsArrayType;
-
-                                    Array paramArray;
-
-                                    if (luaParamValue is LuaTable)
-                                    {
-                                        LuaTable table = (LuaTable)luaParamValue;
-
-                                        paramArray = Array.CreateInstance(paramArrayType, table.Values.Count);
-										if (paramArrayType != typeof(object)) {
-	                                        for (int x = 1; x <= table.Values.Count; x++)
-	                                        {
-	                                            paramArray.SetValue(Convert.ChangeType(table[x], paramArrayType), x - 1);
-	                                        }
-										} else {
-	                                        for (int x = 1; x <= table.Values.Count; x++)
-	                                        {
-												object o = table[x];
-												if (o.GetType() == typeof(double)) {
-													double val = (double)o;
-													if (IsInteger(val))
-														o = Convert.ToInt32(val);
-												}
-	                                            paramArray.SetValue(o, x - 1);
-											}											
-										}
-                                    }
-                                    else
-                                    {
-                                        paramArray = Array.CreateInstance(paramArrayType, 1);
-                                        paramArray.SetValue(luaParamValue, 0);
-                                    }
-
-                                    _LastCalledMethod.args[_LastCalledMethod.argTypes[i].index] = paramArray;
+                                {									                                    
+                                    args[type.index] = _Translator.tableToArray(luaParamValue,type.paramsArrayType);
                                 }
                                 else
                                 {
-                                    _LastCalledMethod.args[_LastCalledMethod.argTypes[i].index] =
-                                        _LastCalledMethod.argTypes[i].extractValue(luaState, i + 1 + numStackToSkip);
+                                    args[type.index] = luaParamValue;
                                 }
 
-                                if (_LastCalledMethod.args[_LastCalledMethod.argTypes[i].index] == null &&
+                                if (args[type.index] == null &&
                                     !LuaDLL.lua_isnil(luaState, i + 1 + numStackToSkip))
                                 {
                                     throw new LuaException("argument number " + (i + 1) + " is invalid");
@@ -225,14 +194,14 @@ namespace LuaInterface
                             }
                             if ((_BindingType & BindingFlags.Static) == BindingFlags.Static)
                             {
-                                _Translator.push(luaState, _LastCalledMethod.cachedMethod.Invoke(null, _LastCalledMethod.args));
+                                _Translator.push(luaState, method.Invoke(null, args));
                             }
                             else
                             {
                                 if (_LastCalledMethod.cachedMethod.IsConstructor)
-                                    _Translator.push(luaState, ((ConstructorInfo)_LastCalledMethod.cachedMethod).Invoke(_LastCalledMethod.args));
+                                    _Translator.push(luaState, ((ConstructorInfo)method).Invoke(args));
                                 else
-                                    _Translator.push(luaState, _LastCalledMethod.cachedMethod.Invoke(targetObject, _LastCalledMethod.args));
+                                    _Translator.push(luaState, method.Invoke(targetObject,args));
                             }
                             failedCall = false;
                         }
@@ -372,7 +341,6 @@ namespace LuaInterface
             for (int index = 0; index < _LastCalledMethod.outList.Length; index++)
             {
                 nReturnValues++;
-                //for(int i=0;i<lastCalledMethod.outList.Length;i++)
                 _Translator.push(luaState, _LastCalledMethod.args[_LastCalledMethod.outList[index]]);
             }
 
