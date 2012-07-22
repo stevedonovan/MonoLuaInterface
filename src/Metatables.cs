@@ -729,29 +729,29 @@ namespace LuaInterface
             LuaDLL.lua_pushnil(luaState);
             return 1;
         }
-		
-		private static bool IsInteger(double x) {
-			return Math.Ceiling(x) == x;	
-		}			
+        
+        private static bool IsInteger(double x) {
+            return Math.Ceiling(x) == x;	
+        }			
 
-		
-		internal Array TableToArray(object luaParamValue, Type paramArrayType) {
+        
+        internal Array TableToArray(object luaParamValue, Type paramArrayType) {
             Array paramArray;
 
             if (luaParamValue is LuaTable)  {
                 LuaTable table = (LuaTable)luaParamValue;
                 IDictionaryEnumerator tableEnumerator = table.GetEnumerator();				
-   				tableEnumerator.Reset();
-				paramArray = Array.CreateInstance(paramArrayType, table.Values.Count);                
+                tableEnumerator.Reset();
+                paramArray = Array.CreateInstance(paramArrayType, table.Values.Count);                
 
                 int paramArrayIndex = 0;
-				
+                
                 while(tableEnumerator.MoveNext())  {
-					object o = tableEnumerator.Value;
-					if (paramArrayType == typeof(object)) { 
-						if (o != null && o.GetType() == typeof(double) && IsInteger((double)o))
-							o = Convert.ToInt32((double)o);
-					}													
+                    object o = tableEnumerator.Value;
+                    if (paramArrayType == typeof(object)) { 
+                        if (o != null && o.GetType() == typeof(double) && IsInteger((double)o))
+                            o = Convert.ToInt32((double)o);
+                    }													
                     paramArray.SetValue(Convert.ChangeType(o, paramArrayType), paramArrayIndex);
                     paramArrayIndex++;
                 }
@@ -759,11 +759,11 @@ namespace LuaInterface
                 paramArray = Array.CreateInstance(paramArrayType, 1);
                 paramArray.SetValue(luaParamValue, 0);
             }
-	
-			return paramArray;
-			
-		}
-		
+    
+            return paramArray;
+            
+        }
+        
         /*
          * Matches a method against its arguments in the Lua stack. Returns
          * if the match was succesful. It it was also returns the information
@@ -814,8 +814,8 @@ namespace LuaInterface
                 {
                     object luaParamValue = extractValue(luaState, currentLuaParam);
                     Type paramArrayType = currentNetParam.ParameterType.GetElementType();
-					
- 					Array paramArray = TableToArray(luaParamValue, paramArrayType);					
+                    
+                    Array paramArray = TableToArray(luaParamValue, paramArrayType);					
                     int index = paramList.Add(paramArray);
 
                     MethodArgs methodArg = new MethodArgs();

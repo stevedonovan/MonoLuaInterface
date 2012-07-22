@@ -27,7 +27,7 @@ namespace LuaInterface
                 if (mi != null)
                 {
                     //SJD this is guaranteed to be correct irrespective of actual name used for type..
-					IsReturnVoid = mi.ReturnType == typeof(void);
+                    IsReturnVoid = mi.ReturnType == typeof(void);
                 }
             }
         }
@@ -126,10 +126,10 @@ namespace LuaInterface
         {
             return _Translator.interpreter.SetPendingException(e);
         }
-		
-		private static bool IsInteger(double x) {
-			return Math.Ceiling(x) == x;	
-		}			
+        
+        private static bool IsInteger(double x) {
+            return Math.Ceiling(x) == x;	
+        }			
 
 
         /*
@@ -162,21 +162,21 @@ namespace LuaInterface
                 {
                     int numStackToSkip = isStatic ? 0 : 1; // If this is an instance invoe we will have an extra arg on the stack for the targetObject
                     int numArgsPassed = LuaDLL.lua_gettop(luaState) - numStackToSkip;					
-    				MethodBase method = _LastCalledMethod.cachedMethod;
-					
-					if (numArgsPassed == _LastCalledMethod.argTypes.Length) // No. of args match?
+                    MethodBase method = _LastCalledMethod.cachedMethod;
+                    
+                    if (numArgsPassed == _LastCalledMethod.argTypes.Length) // No. of args match?
                     {
                         if (!LuaDLL.lua_checkstack(luaState, _LastCalledMethod.outList.Length + 6))
                             throw new LuaException("Lua stack overflow");
-						
-     					object[] args = _LastCalledMethod.args;
-						
-						try
+                        
+                        object[] args = _LastCalledMethod.args;
+                        
+                        try
                         {
                             for (int i = 0; i < _LastCalledMethod.argTypes.Length; i++)
                             {
-								MethodArgs type = _LastCalledMethod.argTypes[i];
-								object luaParamValue = type.extractValue(luaState, i + 1 + numStackToSkip);
+                                MethodArgs type = _LastCalledMethod.argTypes[i];
+                                object luaParamValue = type.extractValue(luaState, i + 1 + numStackToSkip);
                                 if (_LastCalledMethod.argTypes[i].isParamsArray)
                                 {									                                    
                                     args[type.index] = _Translator.tableToArray(luaParamValue,type.paramsArrayType);

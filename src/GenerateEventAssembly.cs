@@ -361,7 +361,7 @@ namespace LuaInterface
             generator.Emit(OpCodes.Stfld,returnTypesField);
             generator.Emit(OpCodes.Ret);
             // Generates overriden versions of the klass' public and protected virtual methods that have been explicitly specfied
-			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             MethodInfo[] classMethods=klass.GetMethods(flags);
             returnTypes=new Type[classMethods.Length][];
             int i=0;
@@ -378,11 +378,11 @@ namespace LuaInterface
                 {
                     if(!method.IsPrivate && !method.IsFinal && method.IsVirtual)
                     {
-						if (luaTable[method.Name] != null) {
-							GenerateMethod(myType,method,(method.Attributes|MethodAttributes.NewSlot)^MethodAttributes.NewSlot,i,
-	                            luaTableField,returnTypesField,true,out returnTypes[i]);
-	                        i++;
-						}
+                        if (luaTable[method.Name] != null) {
+                            GenerateMethod(myType,method,(method.Attributes|MethodAttributes.NewSlot)^MethodAttributes.NewSlot,i,
+                                luaTableField,returnTypesField,true,out returnTypes[i]);
+                            i++;
+                        }
                     }
                 }
             }
