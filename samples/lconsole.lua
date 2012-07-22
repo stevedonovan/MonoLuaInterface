@@ -16,31 +16,31 @@ timer.Interval = 10
 local callback
 
 timer.Tick:Add(function()
-	timer:Stop()
-	if not pcall(callback) then
+    timer:Stop()
+    if not pcall(callback) then
         ferr:write 'callback hosed\n'
     end
 end)
 
 local function call_later (fun)
     callback = fun
-	timer:Start()
+    timer:Start()
 end
 
 local function readfile (file)
     local f = io.open(file,'r')
-	if not f then return end
-	local res = f:read("*a")
-	f:close()
-	return res
+    if not f then return end
+    local res = f:read("*a")
+    f:close()
+    return res
 end
 
 local function writefile (file,s)
     local f = io.open(file,'w')
-	if not f then return end
-	f:write(s)
-	f:close()
-	return true
+    if not f then return end
+    f:write(s)
+    f:close()
+    return true
 end
 
 function current_line (pane)
@@ -50,10 +50,10 @@ end
 -- a useful function for selecting lines in Rich text boxes; if lno is not specified,
 -- then use the current line
 function select_line (pane,lno)
-	if not lno then -- current line
+    if not lno then -- current line
         lno = current_line(pane)
-	end
-	local pos = pane.SelectionStart
+    end
+    local pos = pane.SelectionStart
     local start = pane:GetFirstCharIndexFromLine(lno)
     pane:Select(start,pos - start + 1)
 end
@@ -76,8 +76,8 @@ end
 
 local function list_contains (name)
     for i = 1,list.Items.Count do
-		if list.Items[i-1] == name then return true end
-	end
+        if list.Items[i-1] == name then return true end
+    end
 end
 
 local function add_to_list (name)
@@ -87,7 +87,7 @@ local function add_to_list (name)
 end
 
 local function session_file (name)
-	if not name then return end
+    if not name then return end
     return session_dir..'/'..name..'.lua'
 end
 
@@ -126,12 +126,12 @@ end
 
 list.SelectedIndexChanged:Add(function()
     local file = session_file(list.SelectedItem)
-	if not file or not File.Exists(file) then return end
+    if not file or not File.Exists(file) then return end
     local txt = readfile(file)
-	if not txt then
-		ShowError ("Cannot open '"..file.."'")
-		return
-	end
+    if not txt then
+        ShowError ("Cannot open '"..file.."'")
+        return
+    end
     code.Text = txt
 end)
 
@@ -158,7 +158,7 @@ end
 local function save_session ()
     local dlg = SaveFileDialog()
     dlg.Filter = "Lua (*.lua)|*.lua"
-	dlg.InitialDirectory = this_dir
+    dlg.InitialDirectory = this_dir
     if dlg:ShowDialog() ~= DialogResult.OK then return end
     local f = io.open(dlg.FileName,"w")
     f:write(table.concat(lines,'\n'))
@@ -167,7 +167,7 @@ end
 
 function clear_code ()
     code:Clear()
-	no_name = true
+    no_name = true
 end
 
 function delete_list_item ()
@@ -178,39 +178,39 @@ function delete_list_item ()
 end
 
 function save_code ()
-	local file
-	if code.Lines.Length == 0 then return end
+    local file
+    if code.Lines.Length == 0 then return end
     if not no_name then
-		file = list.SelectedItem
-	else -- no name has been assigned, after clearing the code pane
+        file = list.SelectedItem
+    else -- no name has been assigned, after clearing the code pane
         -- try make up an appropriate one!
-		local firstline = code.Lines[0]
-		local comment = firstline:match('%s*%-%-%s*(.*)')
-		if comment then file = comment
-		else file = "[current]" end
+        local firstline = code.Lines[0]
+        local comment = firstline:match('%s*%-%-%s*(.*)')
+        if comment then file = comment
+        else file = "[current]" end
         no_name = false
-	end
+    end
     local path = session_file(file)
-	writefile(path,code.Text)
+    writefile(path,code.Text)
     if not list_contains(file) then
         add_to_list(file)
     else
         list.SelectedItem = file
     end
-	return path
+    return path
 end
 
 local function save_text ()
     local dlg = SaveFileDialog()
     dlg.Filter = "Text (*.txt)|*.txt"
-	dlg.InitialDirectory = this_dir
+    dlg.InitialDirectory = this_dir
     if dlg:ShowDialog() ~= DialogResult.OK then return end
     writefile(dlg.FileName,text.Text)
 end
 
 local function save_and_go ()
-	local file = save_code()
-	if not file then return end
+    local file = save_code()
+    if not file then return end
     local res,err = pcall(dofile,file)
     --ferr:write(file,'\n')
     if not res then
@@ -229,14 +229,14 @@ local function save_and_go ()
 end
 
 function fun (fn)
-	if not fn then -- prompt for a function name
-		fn = PromptForString("Lua Interface Console","Function name","")
-		if not fn then	return end
-	end
-	if list_contains(fn) then
-		ShowError("'"..fn.."' already exists. Pick another name")
-		return
-	end
+    if not fn then -- prompt for a function name
+        fn = PromptForString("Lua Interface Console","Function name","")
+        if not fn then	return end
+    end
+    if list_contains(fn) then
+        ShowError("'"..fn.."' already exists. Pick another name")
+        return
+    end
     no_name = false
     local txt = "function "..fn.."( )\n\nend\n"
     code.Text = txt
@@ -252,12 +252,12 @@ local menu = main_menu {
         "Save As Text",save_text,
         "E&xit(CtrlX)",function() os.exit(0) end,
     },
-	"Run",{
-		"Save and Go(F5)",save_and_go,
-		"Create Function",function() fun() end,
+    "Run",{
+        "Save and Go(F5)",save_and_go,
+        "Create Function",function() fun() end,
         "Delete Item",delete_list_item,
-		"Clear Code Pane",clear_code,
-	},
+        "Clear Code Pane",clear_code,
+    },
     "History", {
         "Last(AltUpArrow)", function() get_history(true) end,
         "Previous(AltDownArrow)", function() get_history(false) end
@@ -266,49 +266,49 @@ local menu = main_menu {
 
 local function method (obj,fun)
     return function()
-		fun(obj)
-	end
+        fun(obj)
+    end
 end
 
 local popup = popup_menu {
-	"Copy",method(text,text.Copy),
-	"Paste",method(text,text.Paste),
-	"Cut",method(text,text.Cut),
+    "Copy",method(text,text.Copy),
+    "Paste",method(text,text.Paste),
+    "Cut",method(text,text.Cut),
 }
 
 ------------ Managing Command History -----------
 local help_idx = 1
 
 function get_history (up)
-	call_later(function()
-		local delta
-		-- awful hack, cancelling out the last up/down arrow movement!
-		if up then
-			delta = -1
-		else
-			delta = 1
-		end
+    call_later(function()
+        local delta
+        -- awful hack, cancelling out the last up/down arrow movement!
+        if up then
+            delta = -1
+        else
+            delta = 1
+        end
         key_sent = true
-		call_later(function()
-			help_idx = help_idx + delta
-			local txt = lines[help_idx]
+        call_later(function()
+            help_idx = help_idx + delta
+            local txt = lines[help_idx]
             if not txt then
                 help_idx = help_idx - delta
                 return
             end
-			select_line(text)
-			text.SelectedText = '> '..txt
-		end)
-	end)
+            select_line(text)
+            text.SelectedText = '> '..txt
+        end)
+    end)
 end
 
 ------------ Special Key Handling ------------------
 local lastLine = -1
 
 text.KeyDown:Add(function(sender,args)
-	if args.KeyCode == Keys.Enter then
-		local lineNo = text:GetLineFromCharIndex(text.SelectionStart)
-		if lineNo ~= lastLine then -- for some reason, happens twice!
+    if args.KeyCode == Keys.Enter then
+        local lineNo = text:GetLineFromCharIndex(text.SelectionStart)
+        if lineNo ~= lastLine then -- for some reason, happens twice!
             if lineNo >= text.Lines.Length then
                 lineNo = text.Lines.Length - 1
                 --ferr:write(lineNo,' ',text.Lines.Length,' goofed\n')
@@ -330,13 +330,13 @@ end)
 
 ----------------------- Ouput Redirection ---------------------------------
 function write_out (expand,...)
-	local t = {...}
-	local n = #t - 1
-	for i = 1,n do
-		write(tostring(t[i]))
-		if expand then write '\t' end
-	end
-	write(tostring(t[n+1]))
+    local t = {...}
+    local n = #t - 1
+    for i = 1,n do
+        write(tostring(t[i]))
+        if expand then write '\t' end
+    end
+    write(tostring(t[n+1]))
 end
 
 function writer (...)
@@ -346,7 +346,7 @@ end
 ilua.set_writer(writer)
 function print (...)
     write_out(true,...)
-	write '\r\n'
+    write '\r\n'
 end
 
 -------- Layout Controls ---------------------------------------------
@@ -391,10 +391,10 @@ gettype = luanet.import_type
 app = {code=code,text=text, list=list, form=form}
 function cd (path)
     if not path or #path == 0 then
-		print(Directory.GetCurrentDirectory())
-	else
-		Directory.SetCurrentDirectory(path)
-	end
+        print(Directory.GetCurrentDirectory())
+    else
+        Directory.SetCurrentDirectory(path)
+    end
 end
 
 write 'Lua 5.1.4  Copyright (C) 1994-2008 Lua.org, PUC-Rio\r\n'
