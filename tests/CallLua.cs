@@ -35,56 +35,65 @@ public class MyClass {
 }
 
 public class CSharp {
-	public virtual string MyMethod(string s) {
-		return s.ToUpper();
-	}	
+    public virtual string MyMethod(string s) {
+        return s.ToUpper();
+    }	
+    
+    protected virtual string Protected(string s) {
+        return s + "?";
+    }
 	
-	public static string UseMe (CSharp obj, string val) {
-		return obj.MyMethod(val);	
+	protected virtual bool ProtectedBool() {
+		return false;
 	}
+    
+    public static string UseMe (CSharp obj, string val) {
+        Console.WriteLine("calling protected {0} {1}",obj.Protected(val),obj.ProtectedBool());        
+        return obj.MyMethod(val);	
+    }
 }
 
 public class RefParms {
-	public void Args(out int a, out int b) {
-		a = 2;
-		b = 3;
-	}
-	
-	public int ArgsI(out int a, out int b) {
-		a = 2;
-		b = 3;
-		return 1;
-	}
-	
-	public void ArgsVar(params object[] obj) {
-		int i = (int)obj[0];	
-		Console.WriteLine("cool {0}",i);
-	}
-	
+    public void Args(out int a, out int b) {
+        a = 2;
+        b = 3;
+    }
+    
+    public int ArgsI(out int a, out int b) {
+        a = 2;
+        b = 3;
+        return 1;
+    }
+    
+    public void ArgsVar(params object[] obj) {
+        int i = (int)obj[0];	
+        Console.WriteLine("cool {0}",i);
+    }
+    
 }
 
 public class CallLua {
-	
-	public static bool IsInteger(double x) {
-		return Math.Ceiling(x) == x;	
-	}
-	
+    
+    public static bool IsInteger(double x) {
+        return Math.Ceiling(x) == x;	
+    }
+    
 
     public static void Main(string[] args) {
         Lua L = new Lua();
-		
-		// testing out parameters and type coercion for object[] args.
-		L["obj"] = new RefParms();
-		dump("void,out,out",L.DoString("return obj:Args()"));
-		dump("int,out,out",L.DoString("return obj:ArgsI()"));
-		L.DoString("obj:ArgsVar{1}");
-		Console.WriteLine("equals {0} {1} {2}",IsInteger(2.3),IsInteger(0),IsInteger(44));
-		//Environment.Exit(0);
-		
+        
+        // testing out parameters and type coercion for object[] args.
+        L["obj"] = new RefParms();
+        dump("void,out,out",L.DoString("return obj:Args()"));
+        dump("int,out,out",L.DoString("return obj:ArgsI()"));
+        L.DoString("obj:ArgsVar{1}");
+        Console.WriteLine("equals {0} {1} {2}",IsInteger(2.3),IsInteger(0),IsInteger(44));
+        //Environment.Exit(0);
+        
         object[] res = L.DoString("return 20,'hello'","tmp");
         Console.WriteLine("returned {0} {1}",res[0],res[1]);
-		
-		
+        
+        
 
         L.DoString("answer = 42");
         Console.WriteLine("answer was {0}",L["answer"]);
@@ -120,38 +129,45 @@ public class CallLua {
         L.DoString(@"
             L:DoString 'print(1,2,3)'
         ");
-		
-		// it is also possible to override a CLR class in Lua using luanet.make_object.
-		// This defines a proxy object which will successfully fool any C# code 
-		// receiving it.
-		 object[] R = L.DoString(@"
-			luanet.load_assembly 'CallLua'  -- load this program
-			local CSharp = luanet.import_type 'CSharp'
-			local T = {}
-			function T:MyMethod(s) 
-				return s:lower()
+        
+        // it is also possible to override a CLR class in Lua using luanet.make_object.
+        // This defines a proxy object which will successfully fool any C# code 
+        // receiving it.
+         object[] R = L.DoString(@"
+            luanet.load_assembly 'CallLua'  -- load this program
+            local CSharp = luanet.import_type 'CSharp'
+            local T = {}
+            function T:MyMethod(s) 
+                return s:lower()
             end
-			luanet.make_object(T,'CSharp')
-			print(CSharp.UseMe(T,'CoOl'))
-			return T
-		");
-		// but it's still a table, and there's no way to cast it to CSharp from here...
-		Console.WriteLine("type of returned value {0}",R[0].GetType());
+            function T:Protected(s)
+                return s:upper()
+            end
+			function T:ProtectedBool()
+				return true
+			end
+            luanet.make_object(T,'CSharp')
+            print(CSharp.UseMe(T,'CoOl'))
+			io.flush()
+            return T
+        ");
+        // but it's still a table, and there's no way to cast it to CSharp from here...
+        Console.WriteLine("type of returned value {0}",R[0].GetType());
 
 
     }
-	
-	static void dump(string msg, object[] values) {
-		Console.WriteLine("{0}:",msg);
-		foreach(object o in values) {
-			if (o == null) {
-				Console.WriteLine("\tnull");
-			} else {
-				Console.WriteLine("\t({0}) {1}",o.GetType(),o);
-			}
-		}
-	}
-	
+    
+    static void dump(string msg, object[] values) {
+        Console.WriteLine("{0}:",msg);
+        foreach(object o in values) {
+            if (o == null) {
+                Console.WriteLine("\tnull");
+            } else {
+                Console.WriteLine("\t({0}) {1}",o.GetType(),o);
+            }
+        }
+    }
+    
 
 }
 

@@ -325,7 +325,7 @@ namespace LuaInterface
          * Generates an implementation of klass, if it is an interface, or
          * a subclass of klass that delegates its virtual methods to a Lua table.
          */
-        public void GenerateClass(Type klass,out Type newType,out Type[][] returnTypes)
+        public void GenerateClass(Type klass,out Type newType,out Type[][] returnTypes, LuaTable luaTable)
         {
             string typeName;
             lock(this)
@@ -361,7 +361,8 @@ namespace LuaInterface
             generator.Emit(OpCodes.Stfld,returnTypesField);
             generator.Emit(OpCodes.Ret);
             // Generates overriden versions of the klass' public virtual methods
-            MethodInfo[] classMethods=klass.GetMethods();
+			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; // | BindingFlags.DeclaredOnly;
+            MethodInfo[] classMethods=klass.GetMethods(flags);
             returnTypes=new Type[classMethods.Length][];
             int i=0;
             foreach(MethodInfo method in classMethods)
@@ -377,9 +378,11 @@ namespace LuaInterface
                 {
                     if(!method.IsPrivate && !method.IsFinal && method.IsVirtual)
                     {
-                        GenerateMethod(myType,method,(method.Attributes|MethodAttributes.NewSlot)^MethodAttributes.NewSlot,i,
-                            luaTableField,returnTypesField,true,out returnTypes[i]);
-                        i++;
+						if (luaTable[method.Name] != null) {
+							GenerateMethod(myType,method,(method.Attributes|MethodAttributes.NewSlot)^MethodAttributes.NewSlot,i,
+	                            luaTableField,returnTypesField,true,out returnTypes[i]);
+	                        i++;
+						}
                     }
                 }
             }
@@ -669,7 +672,7 @@ namespace LuaInterface
             else
             {
                 luaClassType=new LuaClassType();
-                GenerateClass(klass,out luaClassType.klass,out luaClassType.returnTypes);
+                GenerateClass(klass,out luaClassType.klass,out luaClassType.returnTypes,luaTable);
                 classCollection[klass] = luaClassType;
             }
             return Activator.CreateInstance(luaClassType.klass,new object[] {luaTable,luaClassType.returnTypes});
